@@ -16,7 +16,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ############################
 FROM base AS deps
 
+# postinstall runs `prisma generate` — schema + config must exist first
 COPY package*.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 RUN npm install
 
@@ -31,7 +34,6 @@ COPY . .
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 
 RUN npx prisma generate
-
 RUN npm run build
 
 ############################
@@ -41,10 +43,11 @@ FROM base AS migrator
 
 COPY --from=deps /app/node_modules ./node_modules
 
+COPY package*.json ./
 COPY prisma ./prisma
-COPY src ./src
 COPY prisma.config.ts ./
-COPY package.json ./
+COPY src ./src
+COPY tsconfig.json ./
 
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 
@@ -70,6 +73,9 @@ RUN addgroup -S nodejs \
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Custom Prisma client output (src/generated) is imported at runtime
+COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 
 RUN mkdir -p /app/public/uploads \
  && chown -R nextjs:nodejs /app/public

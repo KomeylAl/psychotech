@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model SiteSettings {
+  id String @id @default("default")
+
+  name     String
+  nameFa   String
+  tagline  String
+  email    String
+  location String
+
+  heroTitleLine1    String
+  heroTitleHighlight String
+  heroDescription   String
+  heroStat1Label    String
+  heroStat1Value    String
+  heroStat2Label    String
+  heroStat2Value    String
+  heroStat3Label    String
+  heroStat3Value    String
+  heroCtaPrimary    String
+  heroCtaSecondary  String
+
+  aboutEyebrow      String
+  aboutTitle        String
+  aboutParagraph1   String
+  aboutParagraph2   String
+
+  approachEyebrow      String
+  approachTitle        String
+  approachDescription  String
+
+  productsEyebrow      String
+  productsTitle        String
+  productsDescription  String
+
+  teamEyebrow      String
+  teamTitle        String
+  teamDescription  String
+
+  contactEyebrow      String
+  contactTitle        String
+  contactDescription  String
+  contactSuccessTitle String
+  contactSuccessText  String
+
+  footerBlurb String
+
+  updatedAt DateTime @updatedAt
+}
+
+model NavItem {
+  id        String @id @default(cuid())
+  href      String
+  label     String
+  sortOrder Int    @default(0)
+}
+
+model Product {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  indexLabel  String
+  name        String
+  nameEn      String
+  status      String
+  title       String
+  description String
+  sortOrder   Int            @default(0)
+  points      ProductPoint[]
+}
+
+model ProductPoint {
+  id        String  @id @default(cuid())
+  text      String
+  sortOrder Int     @default(0)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model TeamMember {
+  id        String @id @default(cuid())
+  name      String
+  role      String
+  bio       String
+  initials  String
+  sortOrder Int    @default(0)
+}
+
+model ValueItem {
+  id        String @id @default(cuid())
+  title     String
+  text      String
+  sortOrder Int    @default(0)
+}
+
+model ApproachStep {
+  id         String @id @default(cuid())
+  indexLabel String
+  title      String
+  text       String
+  sortOrder  Int    @default(0)
+}
+
+model Keyword {
+  id        String @id @default(cuid())
+  word      String
+  sortOrder Int    @default(0)
+}
+
+model ContactMessage {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  organization String?
+  message      String
+  read         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}

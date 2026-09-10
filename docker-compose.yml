@@ -37,9 +37,6 @@ services:
 
       DATABASE_URL: ${DATABASE_URL}
 
-      SMSIR_API_KEY: ${SMSIR_API_KEY}
-      SMS_LINE_NUMBER: ${SMS_LINE_NUMBER}
-
     volumes:
       - ./storage/uploads:/app/public/uploads
 

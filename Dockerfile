@@ -16,7 +16,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ############################
 FROM base AS deps
 
-# postinstall runs `prisma generate` — schema + config must exist first
+# postinstall runs `prisma generate`, which loads prisma.config.ts and requires DATABASE_URL
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+
+# schema + config must exist before npm install (postinstall → prisma generate)
 COPY package*.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./

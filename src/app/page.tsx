@@ -33,7 +33,14 @@ export default async function Home() {
   return (
     <div className="relative flex min-h-full flex-1 flex-col">
       <Ambient />
-      <Header nav={nav} />
+      <Header
+        nav={nav}
+        brand={{
+          logoUrl: settings.logoUrl,
+          name: settings.name,
+          nameFa: settings.nameFa,
+        }}
+      />
       <HeaderSpacer />
       <SideRail nav={nav} />
       <main id="main" className="relative z-10 overflow-x-clip">

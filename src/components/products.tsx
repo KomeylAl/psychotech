@@ -125,7 +125,20 @@ export function Products({ settings, products }: ProductsProps) {
                 <div
                   className={`flex items-center bg-gradient-to-b to-transparent p-8 sm:p-10 ${index === 0 ? "from-brand/10" : "from-accent/10"}`}
                 >
-                  {product.slug === "nura" || index === 0 ? <NuraMock /> : <TheraMock />}
+                  {product.imageUrl ? (
+                    <div className="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="aspect-[4/3] w-full object-cover"
+                      />
+                    </div>
+                  ) : product.slug === "nura" || index === 0 ? (
+                    <NuraMock />
+                  ) : (
+                    <TheraMock />
+                  )}
                 </div>
               </article>
             </Reveal>

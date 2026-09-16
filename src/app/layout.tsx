@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Vazirmatn } from "next/font/google";
 import { themeInitScript } from "@/lib/theme-script";
+import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -15,31 +16,52 @@ const outfit = Outfit({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Psycho Tech | سایکو تک",
-    template: "%s | Psycho Tech",
-  },
-  description:
-    "سایکو تک در تقاطع روان‌شناسی و فناوری نرم‌افزار می‌سازد؛ ابزارهایی دقیق، اخلاق‌مدار و انسان‌محور برای درمان، سنجش و سازمان.",
-  keywords: [
-    "Psycho Tech",
-    "سایکو تک",
-    "روان‌شناسی",
-    "فناوری",
-    "سلامت روان",
-    "نرم‌افزار بالینی",
-  ],
-  authors: [{ name: "Psycho Tech" }],
-  openGraph: {
-    title: "Psycho Tech | سایکو تک",
-    description:
-      "جایی که ذهن و ماشین یکدیگر را می‌فهمند. نرم‌افزار در تقاطع روان‌شناسی و فناوری.",
-    locale: "fa_IR",
-    type: "website",
-    siteName: "Psycho Tech",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await prisma.siteSettings.findUnique({
+    where: { id: "default" },
+  });
+
+  const title = settings
+    ? `${settings.name} | ${settings.nameFa}`
+    : "Psycho Tech | سایکو تک";
+  const description =
+    settings?.heroDescription ??
+    "سایکو تک در تقاطع روان‌شناسی و فناوری نرم‌افزار می‌سازد؛ ابزارهایی دقیق، اخلاق‌مدار و انسان‌محور برای درمان، سنجش و سازمان.";
+
+  return {
+    title: {
+      default: title,
+      template: `%s | ${settings?.name ?? "Psycho Tech"}`,
+    },
+    description,
+    keywords: [
+      settings?.name ?? "Psycho Tech",
+      settings?.nameFa ?? "سایکو تک",
+      "روان‌شناسی",
+      "فناوری",
+      "سلامت روان",
+      "نرم‌افزار بالینی",
+    ],
+    authors: [{ name: settings?.name ?? "Psycho Tech" }],
+    icons: settings?.faviconUrl
+      ? {
+          icon: [{ url: settings.faviconUrl }],
+          shortcut: [settings.faviconUrl],
+          apple: [{ url: settings.faviconUrl }],
+        }
+      : undefined,
+    openGraph: {
+      title,
+      description: settings?.tagline
+        ? `${settings.tagline}. ${description}`
+        : description,
+      locale: "fa_IR",
+      type: "website",
+      siteName: settings?.name ?? "Psycho Tech",
+      images: settings?.ogImageUrl ? [{ url: settings.ogImageUrl }] : undefined,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

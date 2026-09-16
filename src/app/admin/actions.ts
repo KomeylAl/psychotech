@@ -3,6 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { loginAdmin, logoutAdmin, requireAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveImageUpdate, deleteUpload } from "@/lib/uploads";
+
+export type ActionResult =
+  | { ok: true; message?: string }
+  | { ok: false; error: string };
+
+function ok(message?: string): ActionResult {
+  return message ? { ok: true, message } : { ok: true };
+}
+
+function fail(error: unknown, fallback = "عملیات ناموفق بود."): ActionResult {
+  if (error instanceof Error && error.message) {
+    return { ok: false, error: error.message };
+  }
+  return { ok: false, error: fallback };
+}
 
 function str(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -51,241 +67,382 @@ export async function adminLoginAction(
 
 export async function adminLogoutAction() {
   await logoutAdmin();
-  // Avoid redirect() here: in Docker with HOSTNAME=0.0.0.0 it breaks.
   return { ok: true as const };
 }
 
-export async function updateSettingsAction(formData: FormData) {
-  await requireAdminSession();
+export async function updateSettingsAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const current = await prisma.siteSettings.findUniqueOrThrow({
+      where: { id: "default" },
+    });
 
-  await prisma.siteSettings.update({
-    where: { id: "default" },
-    data: {
+    const [logoUrl, faviconUrl, ogImageUrl] = await Promise.all([
+      resolveImageUpdate({
+        formData,
+        fileKey: "logo",
+        removeKey: "removeLogo",
+        currentUrl: current.logoUrl,
+        folder: "brand",
+      }),
+      resolveImageUpdate({
+        formData,
+        fileKey: "favicon",
+        removeKey: "removeFavicon",
+        currentUrl: current.faviconUrl,
+        folder: "brand",
+      }),
+      resolveImageUpdate({
+        formData,
+        fileKey: "ogImage",
+        removeKey: "removeOgImage",
+        currentUrl: current.ogImageUrl,
+        folder: "brand",
+      }),
+    ]);
+
+    await prisma.siteSettings.update({
+      where: { id: "default" },
+      data: {
+        name: str(formData, "name"),
+        nameFa: str(formData, "nameFa"),
+        tagline: str(formData, "tagline"),
+        email: str(formData, "email"),
+        location: str(formData, "location"),
+        heroTitleLine1: str(formData, "heroTitleLine1"),
+        heroTitleHighlight: str(formData, "heroTitleHighlight"),
+        heroDescription: str(formData, "heroDescription"),
+        heroStat1Label: str(formData, "heroStat1Label"),
+        heroStat1Value: str(formData, "heroStat1Value"),
+        heroStat2Label: str(formData, "heroStat2Label"),
+        heroStat2Value: str(formData, "heroStat2Value"),
+        heroStat3Label: str(formData, "heroStat3Label"),
+        heroStat3Value: str(formData, "heroStat3Value"),
+        heroCtaPrimary: str(formData, "heroCtaPrimary"),
+        heroCtaSecondary: str(formData, "heroCtaSecondary"),
+        aboutEyebrow: str(formData, "aboutEyebrow"),
+        aboutTitle: str(formData, "aboutTitle"),
+        aboutParagraph1: str(formData, "aboutParagraph1"),
+        aboutParagraph2: str(formData, "aboutParagraph2"),
+        approachEyebrow: str(formData, "approachEyebrow"),
+        approachTitle: str(formData, "approachTitle"),
+        approachDescription: str(formData, "approachDescription"),
+        productsEyebrow: str(formData, "productsEyebrow"),
+        productsTitle: str(formData, "productsTitle"),
+        productsDescription: str(formData, "productsDescription"),
+        teamEyebrow: str(formData, "teamEyebrow"),
+        teamTitle: str(formData, "teamTitle"),
+        teamDescription: str(formData, "teamDescription"),
+        contactEyebrow: str(formData, "contactEyebrow"),
+        contactTitle: str(formData, "contactTitle"),
+        contactDescription: str(formData, "contactDescription"),
+        contactSuccessTitle: str(formData, "contactSuccessTitle"),
+        contactSuccessText: str(formData, "contactSuccessText"),
+        footerBlurb: str(formData, "footerBlurb"),
+        ...(logoUrl !== undefined ? { logoUrl } : {}),
+        ...(faviconUrl !== undefined ? { faviconUrl } : {}),
+        ...(ogImageUrl !== undefined ? { ogImageUrl } : {}),
+      },
+    });
+
+    revalidateSite();
+    return ok("تنظیمات ذخیره شد.");
+  } catch (error) {
+    console.error(error);
+    return fail(error, "ذخیره تنظیمات انجام نشد.");
+  }
+}
+
+export async function upsertNavItemAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const data = {
+      href: str(formData, "href"),
+      label: str(formData, "label"),
+      sortOrder: int(formData, "sortOrder"),
+    };
+
+    if (id) {
+      await prisma.navItem.update({ where: { id }, data });
+    } else {
+      await prisma.navItem.create({ data });
+    }
+
+    revalidateSite();
+    return ok(id ? "آیتم ناوبری به‌روز شد." : "آیتم ناوبری اضافه شد.");
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteNavItemAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.navItem.delete({ where: { id: str(formData, "id") } });
+    revalidateSite();
+    return ok("آیتم ناوبری حذف شد.");
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function upsertProductAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const pointsRaw = str(formData, "points");
+    const points = pointsRaw
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    const current = id
+      ? await prisma.product.findUnique({ where: { id } })
+      : null;
+
+    const imageUrl = await resolveImageUpdate({
+      formData,
+      fileKey: "image",
+      removeKey: "removeImage",
+      currentUrl: current?.imageUrl,
+      folder: "products",
+    });
+
+    const data = {
+      slug: str(formData, "slug"),
+      indexLabel: str(formData, "indexLabel"),
       name: str(formData, "name"),
-      nameFa: str(formData, "nameFa"),
-      tagline: str(formData, "tagline"),
-      email: str(formData, "email"),
-      location: str(formData, "location"),
-      heroTitleLine1: str(formData, "heroTitleLine1"),
-      heroTitleHighlight: str(formData, "heroTitleHighlight"),
-      heroDescription: str(formData, "heroDescription"),
-      heroStat1Label: str(formData, "heroStat1Label"),
-      heroStat1Value: str(formData, "heroStat1Value"),
-      heroStat2Label: str(formData, "heroStat2Label"),
-      heroStat2Value: str(formData, "heroStat2Value"),
-      heroStat3Label: str(formData, "heroStat3Label"),
-      heroStat3Value: str(formData, "heroStat3Value"),
-      heroCtaPrimary: str(formData, "heroCtaPrimary"),
-      heroCtaSecondary: str(formData, "heroCtaSecondary"),
-      aboutEyebrow: str(formData, "aboutEyebrow"),
-      aboutTitle: str(formData, "aboutTitle"),
-      aboutParagraph1: str(formData, "aboutParagraph1"),
-      aboutParagraph2: str(formData, "aboutParagraph2"),
-      approachEyebrow: str(formData, "approachEyebrow"),
-      approachTitle: str(formData, "approachTitle"),
-      approachDescription: str(formData, "approachDescription"),
-      productsEyebrow: str(formData, "productsEyebrow"),
-      productsTitle: str(formData, "productsTitle"),
-      productsDescription: str(formData, "productsDescription"),
-      teamEyebrow: str(formData, "teamEyebrow"),
-      teamTitle: str(formData, "teamTitle"),
-      teamDescription: str(formData, "teamDescription"),
-      contactEyebrow: str(formData, "contactEyebrow"),
-      contactTitle: str(formData, "contactTitle"),
-      contactDescription: str(formData, "contactDescription"),
-      contactSuccessTitle: str(formData, "contactSuccessTitle"),
-      contactSuccessText: str(formData, "contactSuccessText"),
-      footerBlurb: str(formData, "footerBlurb"),
-    },
-  });
+      nameEn: str(formData, "nameEn"),
+      status: str(formData, "status"),
+      title: str(formData, "title"),
+      description: str(formData, "description"),
+      sortOrder: int(formData, "sortOrder"),
+      ...(imageUrl !== undefined ? { imageUrl } : {}),
+    };
 
-  revalidateSite();
-}
-
-export async function upsertNavItemAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const data = {
-    href: str(formData, "href"),
-    label: str(formData, "label"),
-    sortOrder: int(formData, "sortOrder"),
-  };
-
-  if (id) {
-    await prisma.navItem.update({ where: { id }, data });
-  } else {
-    await prisma.navItem.create({ data });
-  }
-
-  revalidateSite();
-}
-
-export async function deleteNavItemAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.navItem.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
-}
-
-export async function upsertProductAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const pointsRaw = str(formData, "points");
-  const points = pointsRaw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const data = {
-    slug: str(formData, "slug"),
-    indexLabel: str(formData, "indexLabel"),
-    name: str(formData, "name"),
-    nameEn: str(formData, "nameEn"),
-    status: str(formData, "status"),
-    title: str(formData, "title"),
-    description: str(formData, "description"),
-    sortOrder: int(formData, "sortOrder"),
-  };
-
-  if (id) {
-    await prisma.productPoint.deleteMany({ where: { productId: id } });
-    await prisma.product.update({
-      where: { id },
-      data: {
-        ...data,
-        points: {
-          create: points.map((text, sortOrder) => ({ text, sortOrder })),
+    if (id) {
+      await prisma.productPoint.deleteMany({ where: { productId: id } });
+      await prisma.product.update({
+        where: { id },
+        data: {
+          ...data,
+          points: {
+            create: points.map((text, sortOrder) => ({ text, sortOrder })),
+          },
         },
-      },
-    });
-  } else {
-    await prisma.product.create({
-      data: {
-        ...data,
-        points: {
-          create: points.map((text, sortOrder) => ({ text, sortOrder })),
+      });
+    } else {
+      await prisma.product.create({
+        data: {
+          ...data,
+          points: {
+            create: points.map((text, sortOrder) => ({ text, sortOrder })),
+          },
         },
-      },
+      });
+    }
+
+    revalidateSite();
+    return ok(id ? "محصول به‌روز شد." : "محصول اضافه شد.");
+  } catch (error) {
+    return fail(error, "ذخیره محصول انجام نشد.");
+  }
+}
+
+export async function deleteProductAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const product = await prisma.product.findUnique({ where: { id } });
+    await prisma.product.delete({ where: { id } });
+    if (product?.imageUrl) {
+      await deleteUpload(product.imageUrl);
+    }
+    revalidateSite();
+    return ok("محصول حذف شد.");
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function upsertTeamMemberAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const current = id
+      ? await prisma.teamMember.findUnique({ where: { id } })
+      : null;
+
+    const imageUrl = await resolveImageUpdate({
+      formData,
+      fileKey: "image",
+      removeKey: "removeImage",
+      currentUrl: current?.imageUrl,
+      folder: "team",
     });
+
+    const data = {
+      name: str(formData, "name"),
+      role: str(formData, "role"),
+      bio: str(formData, "bio"),
+      initials: str(formData, "initials"),
+      sortOrder: int(formData, "sortOrder"),
+      ...(imageUrl !== undefined ? { imageUrl } : {}),
+    };
+
+    if (id) {
+      await prisma.teamMember.update({ where: { id }, data });
+    } else {
+      await prisma.teamMember.create({ data });
+    }
+
+    revalidateSite();
+    return ok(id ? "عضو تیم به‌روز شد." : "عضو تیم اضافه شد.");
+  } catch (error) {
+    return fail(error, "ذخیره عضو تیم انجام نشد.");
   }
-
-  revalidateSite();
 }
 
-export async function deleteProductAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.product.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
-}
-
-export async function upsertTeamMemberAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const data = {
-    name: str(formData, "name"),
-    role: str(formData, "role"),
-    bio: str(formData, "bio"),
-    initials: str(formData, "initials"),
-    sortOrder: int(formData, "sortOrder"),
-  };
-
-  if (id) {
-    await prisma.teamMember.update({ where: { id }, data });
-  } else {
-    await prisma.teamMember.create({ data });
+export async function deleteTeamMemberAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const member = await prisma.teamMember.findUnique({ where: { id } });
+    await prisma.teamMember.delete({ where: { id } });
+    if (member?.imageUrl) {
+      await deleteUpload(member.imageUrl);
+    }
+    revalidateSite();
+    return ok("عضو تیم حذف شد.");
+  } catch (error) {
+    return fail(error);
   }
-
-  revalidateSite();
 }
 
-export async function deleteTeamMemberAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.teamMember.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
-}
+export async function upsertValueAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const data = {
+      title: str(formData, "title"),
+      text: str(formData, "text"),
+      sortOrder: int(formData, "sortOrder"),
+    };
 
-export async function upsertValueAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const data = {
-    title: str(formData, "title"),
-    text: str(formData, "text"),
-    sortOrder: int(formData, "sortOrder"),
-  };
+    if (id) {
+      await prisma.valueItem.update({ where: { id }, data });
+    } else {
+      await prisma.valueItem.create({ data });
+    }
 
-  if (id) {
-    await prisma.valueItem.update({ where: { id }, data });
-  } else {
-    await prisma.valueItem.create({ data });
+    revalidateSite();
+    return ok(id ? "ارزش به‌روز شد." : "ارزش اضافه شد.");
+  } catch (error) {
+    return fail(error);
   }
-
-  revalidateSite();
 }
 
-export async function deleteValueAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.valueItem.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
-}
-
-export async function upsertStepAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const data = {
-    indexLabel: str(formData, "indexLabel"),
-    title: str(formData, "title"),
-    text: str(formData, "text"),
-    sortOrder: int(formData, "sortOrder"),
-  };
-
-  if (id) {
-    await prisma.approachStep.update({ where: { id }, data });
-  } else {
-    await prisma.approachStep.create({ data });
+export async function deleteValueAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.valueItem.delete({ where: { id: str(formData, "id") } });
+    revalidateSite();
+    return ok("ارزش حذف شد.");
+  } catch (error) {
+    return fail(error);
   }
-
-  revalidateSite();
 }
 
-export async function deleteStepAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.approachStep.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
-}
+export async function upsertStepAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const data = {
+      indexLabel: str(formData, "indexLabel"),
+      title: str(formData, "title"),
+      text: str(formData, "text"),
+      sortOrder: int(formData, "sortOrder"),
+    };
 
-export async function upsertKeywordAction(formData: FormData) {
-  await requireAdminSession();
-  const id = str(formData, "id");
-  const data = {
-    word: str(formData, "word"),
-    sortOrder: int(formData, "sortOrder"),
-  };
+    if (id) {
+      await prisma.approachStep.update({ where: { id }, data });
+    } else {
+      await prisma.approachStep.create({ data });
+    }
 
-  if (id) {
-    await prisma.keyword.update({ where: { id }, data });
-  } else {
-    await prisma.keyword.create({ data });
+    revalidateSite();
+    return ok(id ? "مرحله به‌روز شد." : "مرحله اضافه شد.");
+  } catch (error) {
+    return fail(error);
   }
-
-  revalidateSite();
 }
 
-export async function deleteKeywordAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.keyword.delete({ where: { id: str(formData, "id") } });
-  revalidateSite();
+export async function deleteStepAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.approachStep.delete({ where: { id: str(formData, "id") } });
+    revalidateSite();
+    return ok("مرحله حذف شد.");
+  } catch (error) {
+    return fail(error);
+  }
 }
 
-export async function markMessageReadAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.contactMessage.update({
-    where: { id: str(formData, "id") },
-    data: { read: true },
-  });
-  revalidatePath("/admin/messages");
+export async function upsertKeywordAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    const id = str(formData, "id");
+    const data = {
+      word: str(formData, "word"),
+      sortOrder: int(formData, "sortOrder"),
+    };
+
+    if (id) {
+      await prisma.keyword.update({ where: { id }, data });
+    } else {
+      await prisma.keyword.create({ data });
+    }
+
+    revalidateSite();
+    return ok(id ? "کلمه کلیدی به‌روز شد." : "کلمه کلیدی اضافه شد.");
+  } catch (error) {
+    return fail(error);
+  }
 }
 
-export async function deleteMessageAction(formData: FormData) {
-  await requireAdminSession();
-  await prisma.contactMessage.delete({ where: { id: str(formData, "id") } });
-  revalidatePath("/admin/messages");
+export async function deleteKeywordAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.keyword.delete({ where: { id: str(formData, "id") } });
+    revalidateSite();
+    return ok("کلمه کلیدی حذف شد.");
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function markMessageReadAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.contactMessage.update({
+      where: { id: str(formData, "id") },
+      data: { read: true },
+    });
+    revalidatePath("/admin/messages");
+    return ok("پیام به‌عنوان خوانده‌شده علامت خورد.");
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function deleteMessageAction(formData: FormData): Promise<ActionResult> {
+  try {
+    await requireAdminSession();
+    await prisma.contactMessage.delete({ where: { id: str(formData, "id") } });
+    revalidatePath("/admin/messages");
+    return ok("پیام حذف شد.");
+  } catch (error) {
+    return fail(error);
+  }
 }

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { adminLogoutAction } from "@/app/admin/actions";
+import { useActionState, useTransition, type ReactNode } from "react";
+import { adminLogoutAction, type ActionResult } from "@/app/admin/actions";
+import { useToast } from "@/components/toast";
 
 const links = [
   { href: "/admin", label: "داشبورد" },
@@ -19,6 +20,7 @@ const links = [
 
 function LogoutButton() {
   const router = useRouter();
+  const { push } = useToast();
   const [pending, startTransition] = useTransition();
 
   return (
@@ -28,9 +30,14 @@ function LogoutButton() {
       className="w-full rounded-full border border-line px-4 py-2 text-sm text-muted hover:text-ink disabled:opacity-60"
       onClick={() => {
         startTransition(async () => {
-          await adminLogoutAction();
-          router.replace("/admin/login");
-          router.refresh();
+          try {
+            await adminLogoutAction();
+            push({ tone: "success", message: "با موفقیت خارج شدید." });
+            router.replace("/admin/login");
+            router.refresh();
+          } catch {
+            push({ tone: "error", message: "خروج انجام نشد." });
+          }
         });
       }}
     >
@@ -144,11 +151,88 @@ export function Field({
   );
 }
 
-export function SavedBanner({ saved }: { saved?: string | string[] }) {
-  if (!saved) return null;
+export function ImageField({
+  label,
+  name,
+  currentUrl,
+  removeName,
+  hint = "حداکثر ۲ مگابایت — PNG، JPG، WEBP، SVG یا ICO",
+}: {
+  label: string;
+  name: string;
+  currentUrl?: string | null;
+  removeName?: string;
+  hint?: string;
+}) {
   return (
-    <p className="mb-4 rounded-2xl border border-sage/30 bg-sage/10 px-4 py-3 text-sm text-sage">
-      تغییرات ذخیره شد.
-    </p>
+    <div className="text-sm">
+      <span className="mb-2 block text-muted">{label}</span>
+      {currentUrl ? (
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentUrl}
+            alt=""
+            className="size-16 rounded-xl border border-line object-cover bg-canvas-soft"
+          />
+          {removeName ? (
+            <label className="flex items-center gap-2 text-muted">
+              <input type="checkbox" name={removeName} value="1" />
+              حذف تصویر فعلی
+            </label>
+          ) : null}
+        </div>
+      ) : null}
+      <input
+        type="file"
+        name={name}
+        accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,.ico"
+        className="input file:me-3 file:rounded-full file:border-0 file:bg-brand/15 file:px-3 file:py-1 file:text-brand"
+      />
+      <p className="mt-1 text-xs text-muted">{hint}</p>
+    </div>
+  );
+}
+
+export function AdminForm({
+  action,
+  children,
+  className,
+  successMessage = "تغییرات ذخیره شد.",
+}: {
+  action: (formData: FormData) => Promise<ActionResult>;
+  children: ReactNode;
+  className?: string;
+  successMessage?: string;
+}) {
+  const { push } = useToast();
+  const router = useRouter();
+  const [, formAction, pending] = useActionState(
+    async (_prev: ActionResult | null, formData: FormData): Promise<ActionResult> => {
+      try {
+        const result = await action(formData);
+        if (result.ok) {
+          push({ tone: "success", message: result.message ?? successMessage });
+          router.refresh();
+        } else {
+          push({ tone: "error", message: result.error });
+        }
+        return result;
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "عملیات ناموفق بود. دوباره تلاش کنید.";
+        push({ tone: "error", message });
+        return { ok: false, error: message };
+      }
+    },
+    null,
+  );
+
+  return (
+    <form action={formAction} className={className}>
+      <fieldset disabled={pending} className="min-w-0 contents">
+        {children}
+      </fieldset>
+    </form>
   );
 }

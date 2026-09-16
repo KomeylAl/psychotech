@@ -60,6 +60,10 @@ model SiteSettings {
 
   footerBlurb String
 
+  logoUrl    String?
+  faviconUrl String?
+  ogImageUrl String?
+
   updatedAt DateTime @updatedAt
 }
 
@@ -79,6 +83,7 @@ model Product {
   status      String
   title       String
   description String
+  imageUrl    String?
   sortOrder   Int            @default(0)
   points      ProductPoint[]
 }
@@ -92,12 +97,13 @@ model ProductPoint {
 }
 
 model TeamMember {
-  id        String @id @default(cuid())
+  id        String  @id @default(cuid())
   name      String
   role      String
   bio       String
   initials  String
-  sortOrder Int    @default(0)
+  imageUrl  String?
+  sortOrder Int     @default(0)
 }
 
 model ValueItem {

@@ -12,7 +12,11 @@ export function Footer({ settings, nav }: FooterProps) {
     <footer className="mt-auto border-t border-line px-5 py-12 sm:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <Logo />
+          <Logo
+            logoUrl={settings.logoUrl}
+            name={settings.name}
+            nameFa={settings.nameFa}
+          />
           <p className="mt-4 max-w-sm text-sm leading-7 text-muted">{settings.footerBlurb}</p>
         </div>
         <div className="flex flex-wrap gap-12 text-sm">

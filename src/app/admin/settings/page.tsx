@@ -1,26 +1,46 @@
 import { redirect } from "next/navigation";
 import { updateSettingsAction } from "@/app/admin/actions";
-import { AdminCard, AdminShell, Field, SavedBanner } from "@/components/admin-ui";
+import { AdminCard, AdminForm, AdminShell, Field, ImageField } from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-export default async function AdminSettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ saved?: string }>;
-}) {
+export default async function AdminSettingsPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
 
   const settings = await prisma.siteSettings.findUniqueOrThrow({
     where: { id: "default" },
   });
-  const params = await searchParams;
 
   return (
     <AdminShell username={session.username} title="تنظیمات و متن‌ها">
-      <SavedBanner saved={params.saved} />
-      <form action={updateSettingsAction} className="space-y-5">
+      <AdminForm action={updateSettingsAction} className="space-y-5">
+        <AdminCard title="هویت بصری">
+          <div className="grid gap-6 sm:grid-cols-3">
+            <ImageField
+              label="لوگو"
+              name="logo"
+              currentUrl={settings.logoUrl}
+              removeName="removeLogo"
+              hint="برای هدر و فوتر — ترجیحاً مربع یا افقی کوچک"
+            />
+            <ImageField
+              label="Favicon"
+              name="favicon"
+              currentUrl={settings.faviconUrl}
+              removeName="removeFavicon"
+              hint="آیکون تب مرورگر — ICO، PNG یا SVG"
+            />
+            <ImageField
+              label="تصویر Open Graph"
+              name="ogImage"
+              currentUrl={settings.ogImageUrl}
+              removeName="removeOgImage"
+              hint="پیش‌نمایش اشتراک‌گذاری در شبکه‌های اجتماعی"
+            />
+          </div>
+        </AdminCard>
+
         <AdminCard title="اطلاعات پایه">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="نام انگلیسی" name="name" defaultValue={settings.name} required />
@@ -85,7 +105,7 @@ export default async function AdminSettingsPage({
         <button type="submit" className="btn-primary">
           ذخیره تنظیمات
         </button>
-      </form>
+      </AdminForm>
     </AdminShell>
   );
 }

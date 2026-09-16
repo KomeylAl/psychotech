@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { deleteMessageAction, markMessageReadAction } from "@/app/admin/actions";
-import { AdminCard, AdminShell } from "@/components/admin-ui";
+import { AdminCard, AdminForm, AdminShell } from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -47,19 +47,19 @@ export default async function AdminMessagesPage() {
             </div>
             <div className="mt-4 flex gap-3">
               {!message.read ? (
-                <form action={markMessageReadAction}>
+                <AdminForm action={markMessageReadAction}>
                   <input type="hidden" name="id" value={message.id} />
                   <button type="submit" className="btn-ghost !py-2 text-sm">
                     علامت به‌عنوان خوانده‌شده
                   </button>
-                </form>
+                </AdminForm>
               ) : null}
-              <form action={deleteMessageAction}>
+              <AdminForm action={deleteMessageAction} successMessage="پیام حذف شد.">
                 <input type="hidden" name="id" value={message.id} />
                 <button type="submit" className="text-sm text-red-400 hover:underline">
                   حذف
                 </button>
-              </form>
+              </AdminForm>
             </div>
           </AdminCard>
         ))

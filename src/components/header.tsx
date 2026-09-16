@@ -9,7 +9,13 @@ export type NavLink = {
   label: string;
 };
 
-export function Header({ nav }: { nav: NavLink[] }) {
+export type HeaderBrand = {
+  logoUrl?: string | null;
+  name?: string;
+  nameFa?: string;
+};
+
+export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -39,7 +45,7 @@ export function Header({ nav }: { nav: NavLink[] }) {
         پرش به محتوا
       </a>
       <div className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Logo />
+        <Logo logoUrl={brand?.logoUrl} name={brand?.name} nameFa={brand?.nameFa} />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ناوبری اصلی">
           {nav.map((item) => (
             <a

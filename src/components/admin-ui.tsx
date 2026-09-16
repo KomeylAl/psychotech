@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { adminLogoutAction } from "@/app/admin/actions";
 
 const links = [
@@ -12,6 +16,28 @@ const links = [
   { href: "/admin/keywords", label: "کلمات کلیدی" },
   { href: "/admin/messages", label: "پیام‌ها" },
 ] as const;
+
+function LogoutButton() {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      className="w-full rounded-full border border-line px-4 py-2 text-sm text-muted hover:text-ink disabled:opacity-60"
+      onClick={() => {
+        startTransition(async () => {
+          await adminLogoutAction();
+          router.replace("/admin/login");
+          router.refresh();
+        });
+      }}
+    >
+      {pending ? "در حال خروج…" : "خروج"}
+    </button>
+  );
+}
 
 export function AdminShell({
   children,
@@ -46,11 +72,7 @@ export function AdminShell({
             <Link href="/" className="btn-ghost w-full !py-2 text-sm">
               مشاهده سایت
             </Link>
-            <form action={adminLogoutAction}>
-              <button type="submit" className="w-full rounded-full border border-line px-4 py-2 text-sm text-muted hover:text-ink">
-                خروج
-              </button>
-            </form>
+            <LogoutButton />
           </div>
         </aside>
         <main>

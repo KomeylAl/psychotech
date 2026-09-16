@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { loginAdmin, logoutAdmin, requireAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -16,10 +15,18 @@ function int(formData: FormData, key: string, fallback = 0) {
 
 function revalidateSite() {
   revalidatePath("/");
-  revalidatePath("/admin");
+  revalidatePath("/admin", "layout");
 }
 
-export async function adminLoginAction(_prev: { error?: string } | undefined, formData: FormData) {
+export type LoginActionState = {
+  ok?: boolean;
+  error?: string;
+};
+
+export async function adminLoginAction(
+  _prev: LoginActionState | undefined,
+  formData: FormData,
+): Promise<LoginActionState> {
   const username = str(formData, "username");
   const password = str(formData, "password");
 
@@ -27,17 +34,25 @@ export async function adminLoginAction(_prev: { error?: string } | undefined, fo
     return { error: "نام کاربری و رمز عبور را وارد کنید." };
   }
 
-  const user = await loginAdmin(username, password);
-  if (!user) {
-    return { error: "نام کاربری یا رمز عبور اشتباه است." };
+  try {
+    const user = await loginAdmin(username, password);
+    if (!user) {
+      return { error: "نام کاربری یا رمز عبور اشتباه است." };
+    }
+    return { ok: true };
+  } catch (error) {
+    console.error("admin login failed", error);
+    return {
+      error:
+        "ورود انجام نشد. SESSION_SECRET را در محیط production بررسی کنید.",
+    };
   }
-
-  redirect("/admin");
 }
 
 export async function adminLogoutAction() {
   await logoutAdmin();
-  redirect("/admin/login");
+  // Avoid redirect() here: in Docker with HOSTNAME=0.0.0.0 it breaks.
+  return { ok: true as const };
 }
 
 export async function updateSettingsAction(formData: FormData) {
@@ -85,7 +100,6 @@ export async function updateSettingsAction(formData: FormData) {
   });
 
   revalidateSite();
-  redirect("/admin/settings?saved=1");
 }
 
 export async function upsertNavItemAction(formData: FormData) {
@@ -104,14 +118,12 @@ export async function upsertNavItemAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/nav?saved=1");
 }
 
 export async function deleteNavItemAction(formData: FormData) {
   await requireAdminSession();
   await prisma.navItem.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/nav?saved=1");
 }
 
 export async function upsertProductAction(formData: FormData) {
@@ -157,14 +169,12 @@ export async function upsertProductAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/products?saved=1");
 }
 
 export async function deleteProductAction(formData: FormData) {
   await requireAdminSession();
   await prisma.product.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/products?saved=1");
 }
 
 export async function upsertTeamMemberAction(formData: FormData) {
@@ -185,14 +195,12 @@ export async function upsertTeamMemberAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/team?saved=1");
 }
 
 export async function deleteTeamMemberAction(formData: FormData) {
   await requireAdminSession();
   await prisma.teamMember.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/team?saved=1");
 }
 
 export async function upsertValueAction(formData: FormData) {
@@ -211,14 +219,12 @@ export async function upsertValueAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/values?saved=1");
 }
 
 export async function deleteValueAction(formData: FormData) {
   await requireAdminSession();
   await prisma.valueItem.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/values?saved=1");
 }
 
 export async function upsertStepAction(formData: FormData) {
@@ -238,14 +244,12 @@ export async function upsertStepAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/approach?saved=1");
 }
 
 export async function deleteStepAction(formData: FormData) {
   await requireAdminSession();
   await prisma.approachStep.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/approach?saved=1");
 }
 
 export async function upsertKeywordAction(formData: FormData) {
@@ -263,14 +267,12 @@ export async function upsertKeywordAction(formData: FormData) {
   }
 
   revalidateSite();
-  redirect("/admin/keywords?saved=1");
 }
 
 export async function deleteKeywordAction(formData: FormData) {
   await requireAdminSession();
   await prisma.keyword.delete({ where: { id: str(formData, "id") } });
   revalidateSite();
-  redirect("/admin/keywords?saved=1");
 }
 
 export async function markMessageReadAction(formData: FormData) {
@@ -280,12 +282,10 @@ export async function markMessageReadAction(formData: FormData) {
     data: { read: true },
   });
   revalidatePath("/admin/messages");
-  redirect("/admin/messages");
 }
 
 export async function deleteMessageAction(formData: FormData) {
   await requireAdminSession();
   await prisma.contactMessage.delete({ where: { id: str(formData, "id") } });
   revalidatePath("/admin/messages");
-  redirect("/admin/messages");
 }

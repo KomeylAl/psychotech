@@ -1,10 +1,30 @@
 "use client";
 
-import { useActionState } from "react";
-import { adminLoginAction } from "@/app/admin/actions";
+import { useActionState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { adminLoginAction, type LoginActionState } from "@/app/admin/actions";
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState(adminLoginAction, undefined);
+export function LoginForm({ alreadyAuthed = false }: { alreadyAuthed?: boolean }) {
+  const router = useRouter();
+  const [state, action, pending] = useActionState(
+    adminLoginAction,
+    undefined as LoginActionState | undefined,
+  );
+
+  useEffect(() => {
+    if (alreadyAuthed || state?.ok) {
+      router.replace("/admin");
+      router.refresh();
+    }
+  }, [alreadyAuthed, state, router]);
+
+  if (alreadyAuthed) {
+    return (
+      <div className="glass w-full max-w-md rounded-3xl p-6 sm:p-8">
+        <p className="text-sm text-muted">در حال انتقال به پنل…</p>
+      </div>
+    );
+  }
 
   return (
     <form action={action} className="glass w-full max-w-md rounded-3xl p-6 sm:p-8">

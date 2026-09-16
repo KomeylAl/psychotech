@@ -36,6 +36,9 @@ services:
       HOSTNAME: 0.0.0.0
 
       DATABASE_URL: ${DATABASE_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
+      # Set COOKIE_SECURE=false only if you serve over plain HTTP (no TLS).
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
 
     volumes:
       - ./storage/uploads:/app/public/uploads

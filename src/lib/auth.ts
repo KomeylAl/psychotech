@@ -14,6 +14,22 @@ function getSecret() {
   return new TextEncoder().encode(secret);
 }
 
+function cookieSecure() {
+  if (process.env.COOKIE_SECURE === "true") return true;
+  if (process.env.COOKIE_SECURE === "false") return false;
+  return process.env.NODE_ENV === "production";
+}
+
+function sessionCookieOptions(maxAge: number) {
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure: cookieSecure(),
+    path: "/",
+    maxAge,
+  };
+}
+
 export type AdminSession = {
   sub: string;
   username: string;
@@ -38,20 +54,14 @@ export async function loginAdmin(username: string, password: string) {
     .sign(getSecret());
 
   const jar = await cookies();
-  jar.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: SESSION_DAYS * 24 * 60 * 60,
-  });
+  jar.set(COOKIE_NAME, token, sessionCookieOptions(SESSION_DAYS * 24 * 60 * 60));
 
   return user;
 }
 
 export async function logoutAdmin() {
   const jar = await cookies();
-  jar.delete(COOKIE_NAME);
+  jar.set(COOKIE_NAME, "", sessionCookieOptions(0));
 }
 
 export async function getAdminSession(): Promise<AdminSession | null> {

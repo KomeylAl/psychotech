@@ -24,8 +24,27 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
-function uploadsRoot() {
-  return path.join(process.cwd(), "public", "uploads");
+export function uploadsRoot() {
+  if (process.env.UPLOAD_DIR) {
+    return path.resolve(process.env.UPLOAD_DIR);
+  }
+  // Prefer Docker/host persistence folder; fall back to public for local dev.
+  return path.join(process.cwd(), "storage", "uploads");
+}
+
+export function resolveUploadPath(relativePath: string) {
+  const normalized = relativePath.replace(/^[/\\]+/, "").replace(/\\/g, "/");
+  if (!normalized || normalized.includes("..")) {
+    return null;
+  }
+
+  const root = uploadsRoot();
+  const absolute = path.resolve(root, normalized);
+  const relative = path.relative(root, absolute);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    return null;
+  }
+  return absolute;
 }
 
 export function isUploadUrl(url: string | null | undefined): url is string {
@@ -35,9 +54,10 @@ export function isUploadUrl(url: string | null | undefined): url is string {
 export async function deleteUpload(url: string | null | undefined) {
   if (!isUploadUrl(url)) return;
   const relative = url.replace(/^\/uploads\//, "");
-  if (!relative || relative.includes("..")) return;
+  const absolute = resolveUploadPath(relative);
+  if (!absolute) return;
   try {
-    await unlink(path.join(uploadsRoot(), relative));
+    await unlink(absolute);
   } catch {
     // File may already be gone
   }

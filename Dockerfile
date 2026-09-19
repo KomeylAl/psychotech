@@ -80,8 +80,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Custom Prisma client output (src/generated) is imported at runtime
 COPY --from=builder --chown=nextjs:nodejs /app/src/generated ./src/generated
 
-RUN mkdir -p /app/public/uploads \
- && chown -R nextjs:nodejs /app/public
+RUN mkdir -p /app/storage/uploads \
+ && chown -R nextjs:nodejs /app/storage
 
 USER nextjs
 

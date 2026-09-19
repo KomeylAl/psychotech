@@ -39,9 +39,10 @@ services:
       SESSION_SECRET: ${SESSION_SECRET}
       # Set COOKIE_SECURE=false only if you serve over plain HTTP (no TLS).
       COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      UPLOAD_DIR: /app/storage/uploads
 
     volumes:
-      - ./storage/uploads:/app/public/uploads
+      - ./storage/uploads:/app/storage/uploads
 
     networks:
       - infrastructure

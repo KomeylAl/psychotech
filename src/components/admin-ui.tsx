@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useTransition, type ReactNode } from "react";
+import { useActionState, useState, useTransition, type ReactNode } from "react";
 import { adminLogoutAction, type ActionResult } from "@/app/admin/actions";
 import { useToast } from "@/components/toast";
 
@@ -156,13 +156,15 @@ export function ImageField({
   name,
   currentUrl,
   removeName,
-  hint = "حداکثر ۲ مگابایت — PNG، JPG، WEBP، SVG یا ICO",
+  hint = "حداکثر ۵ مگابایت — PNG، JPG، WEBP، GIF، SVG یا ICO",
+  accept = "image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,.ico",
 }: {
   label: string;
   name: string;
   currentUrl?: string | null;
   removeName?: string;
   hint?: string;
+  accept?: string;
 }) {
   return (
     <div className="text-sm">
@@ -186,10 +188,110 @@ export function ImageField({
       <input
         type="file"
         name={name}
-        accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon,image/vnd.microsoft.icon,.ico"
+        accept={accept}
         className="input file:me-3 file:rounded-full file:border-0 file:bg-brand/15 file:px-3 file:py-1 file:text-brand"
       />
       <p className="mt-1 text-xs text-muted">{hint}</p>
+    </div>
+  );
+}
+
+export function ColorField({
+  label,
+  name,
+  defaultValue,
+  hint,
+}: {
+  label: string;
+  name: string;
+  defaultValue: string;
+  hint?: string;
+}) {
+  const [value, setValue] = useState(defaultValue);
+
+  return (
+    <label className="block text-sm">
+      <span className="mb-2 block text-muted">{label}</span>
+      <div className="flex items-center gap-3">
+        <input
+          type="color"
+          value={/^#[0-9A-Fa-f]{6}$/.test(value) ? value : "#2f7cc4"}
+          onChange={(event) => setValue(event.target.value)}
+          className="size-11 shrink-0 cursor-pointer rounded-xl border border-line bg-transparent p-1"
+          aria-label={label}
+        />
+        <input
+          name={name}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          dir="ltr"
+          className="input font-display tracking-wide"
+          pattern="^#?[0-9A-Fa-f]{6}$"
+          required
+        />
+      </div>
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+    </label>
+  );
+}
+
+export function HeroVisualFields({
+  mode = "motion",
+  currentUrl,
+}: {
+  mode?: string;
+  currentUrl?: string | null;
+}) {
+  const [selected, setSelected] = useState(mode === "image" ? "image" : "motion");
+
+  return (
+    <div className="grid gap-4">
+      <fieldset className="grid gap-3">
+        <legend className="mb-1 text-sm text-muted">نمایش بصری هیرو</legend>
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line px-4 py-3">
+          <input
+            type="radio"
+            name="heroVisualMode"
+            value="motion"
+            checked={selected === "motion"}
+            onChange={() => setSelected("motion")}
+            className="mt-1"
+          />
+          <span>
+            <span className="block text-sm font-medium">موشن گرافیک پیش‌فرض</span>
+            <span className="mt-1 block text-xs text-muted">
+              همان طرح انتزاعی متحرک فعلی سایت
+            </span>
+          </span>
+        </label>
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line px-4 py-3">
+          <input
+            type="radio"
+            name="heroVisualMode"
+            value="image"
+            checked={selected === "image"}
+            onChange={() => setSelected("image")}
+            className="mt-1"
+          />
+          <span>
+            <span className="block text-sm font-medium">تصویر یا GIF سفارشی</span>
+            <span className="mt-1 block text-xs text-muted">
+              به‌جای موشن گرافیک، فایل آپلودشده نمایش داده می‌شود
+            </span>
+          </span>
+        </label>
+      </fieldset>
+
+      {selected === "image" ? (
+        <ImageField
+          label="فایل هیرو (GIF / تصویر)"
+          name="heroVisual"
+          currentUrl={currentUrl}
+          removeName="removeHeroVisual"
+          hint="حداکثر ۵ مگابایت — GIF، PNG، JPG یا WEBP"
+          accept="image/gif,image/png,image/jpeg,image/webp,.gif"
+        />
+      ) : null}
     </div>
   );
 }

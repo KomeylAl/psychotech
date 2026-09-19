@@ -1,6 +1,14 @@
 import { redirect } from "next/navigation";
 import { updateSettingsAction } from "@/app/admin/actions";
-import { AdminCard, AdminForm, AdminShell, Field, ImageField } from "@/components/admin-ui";
+import {
+  AdminCard,
+  AdminForm,
+  AdminShell,
+  ColorField,
+  Field,
+  HeroVisualFields,
+  ImageField,
+} from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -41,6 +49,37 @@ export default async function AdminSettingsPage() {
           </div>
         </AdminCard>
 
+        <AdminCard title="رنگ‌بندی">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <ColorField
+              label="رنگ اصلی (Brand)"
+              name="brandColor"
+              defaultValue={settings.brandColor}
+              hint="دکمه‌ها، لینک‌ها و هایلایت‌های اصلی"
+            />
+            <ColorField
+              label="رنگ فرعی (Accent)"
+              name="accentColor"
+              defaultValue={settings.accentColor}
+              hint="تأکیدهای مکمل و جزئیات بصری"
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted">
+            <span
+              className="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5"
+              style={{ background: settings.brandColor, color: "#fff" }}
+            >
+              پیش‌نمایش Brand
+            </span>
+            <span
+              className="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5"
+              style={{ background: settings.accentColor, color: "#fff" }}
+            >
+              پیش‌نمایش Accent
+            </span>
+          </div>
+        </AdminCard>
+
         <AdminCard title="اطلاعات پایه">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="نام انگلیسی" name="name" defaultValue={settings.name} required />
@@ -53,6 +92,10 @@ export default async function AdminSettingsPage() {
 
         <AdminCard title="هیرو">
           <div className="grid gap-4">
+            <HeroVisualFields
+              mode={settings.heroVisualMode}
+              currentUrl={settings.heroVisualUrl}
+            />
             <Field label="خط اول تیتر" name="heroTitleLine1" defaultValue={settings.heroTitleLine1} required />
             <Field label="هایلایت تیتر" name="heroTitleHighlight" defaultValue={settings.heroTitleHighlight} required />
             <Field label="توضیح" name="heroDescription" defaultValue={settings.heroDescription} rows={4} required />

@@ -107,7 +107,18 @@ export function Hero({ settings, keywords }: HeroProps) {
             </div>
           </dl>
         </div>
-        <MindField />
+        {settings.heroVisualMode === "image" && settings.heroVisualUrl ? (
+          <div className="relative mx-auto aspect-square w-full max-w-[34rem] overflow-hidden rounded-[2rem] border border-line bg-canvas-soft">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={settings.heroVisualUrl}
+              alt=""
+              className="size-full object-cover"
+            />
+          </div>
+        ) : (
+          <MindField />
+        )}
       </div>
       {words.length > 0 ? (
         <div className="mt-16 overflow-hidden border-y border-line py-4">

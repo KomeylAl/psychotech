@@ -29,6 +29,14 @@ function int(formData: FormData, key: string, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function parseColor(value: string, label: string) {
+  const withHash = value.startsWith("#") ? value : `#${value}`;
+  if (!/^#[0-9A-Fa-f]{6}$/.test(withHash)) {
+    throw new Error(`${label} باید یک کد رنگ معتبر مثل #2f7cc4 باشد.`);
+  }
+  return withHash.toLowerCase();
+}
+
 function revalidateSite() {
   revalidatePath("/");
   revalidatePath("/admin", "layout");
@@ -77,7 +85,7 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
       where: { id: "default" },
     });
 
-    const [logoUrl, faviconUrl, ogImageUrl] = await Promise.all([
+    const [logoUrl, faviconUrl, ogImageUrl, heroVisualUrl] = await Promise.all([
       resolveImageUpdate({
         formData,
         fileKey: "logo",
@@ -99,7 +107,26 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         currentUrl: current.ogImageUrl,
         folder: "brand",
       }),
+      resolveImageUpdate({
+        formData,
+        fileKey: "heroVisual",
+        removeKey: "removeHeroVisual",
+        currentUrl: current.heroVisualUrl,
+        folder: "hero",
+      }),
     ]);
+
+    const brandColor = parseColor(str(formData, "brandColor"), "رنگ اصلی");
+    const accentColor = parseColor(str(formData, "accentColor"), "رنگ فرعی");
+    const heroVisualMode = str(formData, "heroVisualMode") === "image" ? "image" : "motion";
+
+    if (heroVisualMode === "image") {
+      const nextHeroUrl =
+        heroVisualUrl !== undefined ? heroVisualUrl : current.heroVisualUrl;
+      if (!nextHeroUrl) {
+        return fail(new Error("برای حالت تصویر/GIF ابتدا یک فایل آپلود کنید."));
+      }
+    }
 
     await prisma.siteSettings.update({
       where: { id: "default" },
@@ -109,6 +136,9 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         tagline: str(formData, "tagline"),
         email: str(formData, "email"),
         location: str(formData, "location"),
+        brandColor,
+        accentColor,
+        heroVisualMode,
         heroTitleLine1: str(formData, "heroTitleLine1"),
         heroTitleHighlight: str(formData, "heroTitleHighlight"),
         heroDescription: str(formData, "heroDescription"),
@@ -142,6 +172,7 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         ...(logoUrl !== undefined ? { logoUrl } : {}),
         ...(faviconUrl !== undefined ? { faviconUrl } : {}),
         ...(ogImageUrl !== undefined ? { ogImageUrl } : {}),
+        ...(heroVisualUrl !== undefined ? { heroVisualUrl } : {}),
       },
     });
 

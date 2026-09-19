@@ -64,6 +64,12 @@ model SiteSettings {
   faviconUrl String?
   ogImageUrl String?
 
+  brandColor  String @default("#2f7cc4")
+  accentColor String @default("#c96b32")
+
+  heroVisualMode String  @default("motion")
+  heroVisualUrl  String?
+
   updatedAt DateTime @updatedAt
 }
 

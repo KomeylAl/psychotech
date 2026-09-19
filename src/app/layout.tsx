@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Vazirmatn } from "next/font/google";
 import { themeInitScript } from "@/lib/theme-script";
+import { buildThemeCss, DEFAULT_ACCENT, DEFAULT_BRAND } from "@/lib/theme-colors";
 import { prisma } from "@/lib/prisma";
 import "./globals.css";
 
@@ -42,20 +43,18 @@ const FALLBACK_METADATA: Metadata = {
   },
 };
 
-export async function generateMetadata(): Promise<Metadata> {
-  // Build/prerender (e.g. Docker) has no DB — never fail the build for metadata.
-  let settings: Awaited<
-    ReturnType<typeof prisma.siteSettings.findUnique>
-  > = null;
-
+async function getSettingsSafe() {
   try {
-    settings = await prisma.siteSettings.findUnique({
+    return await prisma.siteSettings.findUnique({
       where: { id: "default" },
     });
   } catch {
-    return FALLBACK_METADATA;
+    return null;
   }
+}
 
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettingsSafe();
   if (!settings) return FALLBACK_METADATA;
 
   const title = `${settings.name} | ${settings.nameFa}`;
@@ -104,7 +103,13 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const settings = await getSettingsSafe();
+  const themeCss = buildThemeCss(
+    settings?.brandColor ?? DEFAULT_BRAND,
+    settings?.accentColor ?? DEFAULT_ACCENT,
+  );
+
   return (
     <html
       lang="fa"
@@ -114,6 +119,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <style id="site-theme" dangerouslySetInnerHTML={{ __html: themeCss }} />
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip bg-canvas text-ink">
         {children}

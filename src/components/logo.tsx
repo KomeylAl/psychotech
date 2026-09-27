@@ -2,18 +2,20 @@ type LogoProps = {
   logoUrl?: string | null;
   name?: string;
   nameFa?: string;
+  href?: string;
 };
 
 export function Logo({
   logoUrl,
   name = "PSYCHO TECH",
   nameFa = "سایکو تک",
+  href = "#top",
 }: LogoProps) {
   return (
     <a
-      href="#top"
+      href={href}
       className="group flex items-center gap-2.5 text-ink no-underline"
-      aria-label={`${nameFa}، بازگشت به بالا`}
+      aria-label={`${nameFa}، بازگشت به صفحه اصلی`}
     >
       <span className="relative grid size-9 place-items-center overflow-hidden rounded-xl border border-line bg-canvas-soft">
         {logoUrl ? (

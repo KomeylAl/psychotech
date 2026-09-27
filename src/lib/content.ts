@@ -41,5 +41,19 @@ export async function getSiteContent(): Promise<SiteContent | null> {
     prisma.keyword.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
-  return { settings, nav, products, team, values, steps, keywords };
+  const hasBlog = nav.some((item) => item.href === "/blog" || item.href.startsWith("/blog"));
+  const navWithBlog = hasBlog
+    ? nav
+    : [
+        ...nav.filter((item) => item.href !== "#contact"),
+        {
+          id: "blog-fallback",
+          href: "/blog",
+          label: "بلاگ",
+          sortOrder: 40,
+        },
+        ...nav.filter((item) => item.href === "#contact"),
+      ];
+
+  return { settings, nav: navWithBlog, products, team, values, steps, keywords };
 }

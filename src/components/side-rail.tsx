@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import type { NavLink } from "@/components/header";
 
 export function SideRail({ nav }: { nav: NavLink[] }) {
-  const items = useMemo(() => [{ href: "#top", label: "آغاز" }, ...nav], [nav]);
+  const items = useMemo(
+    () => [{ href: "#top", label: "آغاز" }, ...nav.filter((item) => item.href.startsWith("#"))],
+    [nav],
+  );
   const [active, setActive] = useState("#top");
 
   useEffect(() => {

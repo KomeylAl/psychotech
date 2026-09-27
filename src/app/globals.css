@@ -315,6 +315,91 @@ body {
   top: 1rem;
 }
 
+.prose-blog {
+  color: var(--ink);
+  font-size: 1.05rem;
+  line-height: 1.95;
+}
+
+.prose-blog > * + * {
+  margin-top: 1.15em;
+}
+
+.prose-blog h2,
+.prose-blog h3,
+.prose-blog h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  margin-top: 1.8em;
+}
+
+.prose-blog h2 {
+  font-size: 1.65rem;
+}
+
+.prose-blog h3 {
+  font-size: 1.3rem;
+}
+
+.prose-blog a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-blog strong {
+  font-weight: 700;
+}
+
+.prose-blog ul,
+.prose-blog ol {
+  padding-inline-start: 1.25rem;
+}
+
+.prose-blog li + li {
+  margin-top: 0.4em;
+}
+
+.prose-blog blockquote {
+  border-inline-start: 3px solid color-mix(in srgb, var(--accent) 70%, transparent);
+  padding-inline-start: 1rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.prose-blog code {
+  font-family: var(--font-outfit), ui-monospace, monospace;
+  font-size: 0.9em;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  padding: 0.15rem 0.4rem;
+}
+
+.prose-blog pre {
+  overflow-x: auto;
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  background: var(--canvas-soft);
+  padding: 1rem 1.1rem;
+}
+
+.prose-blog pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.prose-blog img {
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+}
+
+.prose-blog hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 2rem 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

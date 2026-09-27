@@ -13,6 +13,7 @@ export type HeaderBrand = {
   logoUrl?: string | null;
   name?: string;
   nameFa?: string;
+  href?: string;
 };
 
 export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) {
@@ -45,7 +46,12 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
         پرش به محتوا
       </a>
       <div className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center justify-between px-5 sm:px-8">
-        <Logo logoUrl={brand?.logoUrl} name={brand?.name} nameFa={brand?.nameFa} />
+        <Logo
+          logoUrl={brand?.logoUrl}
+          name={brand?.name}
+          nameFa={brand?.nameFa}
+          href={brand?.href}
+        />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ناوبری اصلی">
           {nav.map((item) => (
             <a

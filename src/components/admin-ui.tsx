@@ -10,6 +10,9 @@ const links = [
   { href: "/admin", label: "داشبورد" },
   { href: "/admin/settings", label: "تنظیمات و متن‌ها" },
   { href: "/admin/nav", label: "ناوبری" },
+  { href: "/admin/blog", label: "بلاگ" },
+  { href: "/admin/blog/categories", label: "دسته‌های بلاگ" },
+  { href: "/admin/blog/tags", label: "برچسب‌های بلاگ" },
   { href: "/admin/products", label: "محصولات" },
   { href: "/admin/team", label: "تیم" },
   { href: "/admin/values", label: "ارزش‌ها" },
@@ -116,6 +119,7 @@ export function Field({
   required = false,
   rows,
   dir,
+  hint,
 }: {
   label: string;
   name: string;
@@ -124,6 +128,7 @@ export function Field({
   required?: boolean;
   rows?: number;
   dir?: string;
+  hint?: string;
 }) {
   return (
     <label className="block text-sm">
@@ -147,6 +152,7 @@ export function Field({
           className="input"
         />
       )}
+      {hint ? <span className="mt-1 block text-xs text-muted">{hint}</span> : null}
     </label>
   );
 }

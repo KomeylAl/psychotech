@@ -16,6 +16,7 @@ export function Footer({ settings, nav }: FooterProps) {
             logoUrl={settings.logoUrl}
             name={settings.name}
             nameFa={settings.nameFa}
+            href="/"
           />
           <p className="mt-4 max-w-sm text-sm leading-7 text-muted">{settings.footerBlurb}</p>
         </div>

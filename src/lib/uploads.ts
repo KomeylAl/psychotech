@@ -65,7 +65,7 @@ export async function deleteUpload(url: string | null | undefined) {
 
 export async function saveUpload(
   file: File | null | undefined,
-  folder: "brand" | "products" | "team" | "hero",
+  folder: "brand" | "products" | "team" | "hero" | "blog",
 ): Promise<string | undefined> {
   if (!file || file.size === 0) return undefined;
 
@@ -99,7 +99,7 @@ export async function resolveImageUpdate(options: {
   fileKey: string;
   removeKey: string;
   currentUrl: string | null | undefined;
-  folder: "brand" | "products" | "team" | "hero";
+  folder: "brand" | "products" | "team" | "hero" | "blog";
 }): Promise<string | null | undefined> {
   const { formData, fileKey, removeKey, currentUrl, folder } = options;
   const remove = strFlag(formData, removeKey);

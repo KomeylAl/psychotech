@@ -83,9 +83,17 @@ async function main() {
         { href: "#approach", label: "رویکرد", sortOrder: 1 },
         { href: "#products", label: "محصولات", sortOrder: 2 },
         { href: "#team", label: "تیم", sortOrder: 3 },
-        { href: "#contact", label: "ارتباط", sortOrder: 4 },
+        { href: "/blog", label: "بلاگ", sortOrder: 4 },
+        { href: "#contact", label: "ارتباط", sortOrder: 5 },
       ],
     });
+  } else {
+    const blogNav = await prisma.navItem.findFirst({ where: { href: "/blog" } });
+    if (!blogNav) {
+      await prisma.navItem.create({
+        data: { href: "/blog", label: "بلاگ", sortOrder: 4 },
+      });
+    }
   }
 
   const productCount = await prisma.product.count();

@@ -106,10 +106,20 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const settings = await getSettingsSafe();
-  const themeCss = buildThemeCss(
-    settings?.brandColor ?? DEFAULT_BRAND,
-    settings?.accentColor ?? DEFAULT_ACCENT,
-  );
+  const themeCss = buildThemeCss({
+    brandColor: settings?.brandColor ?? DEFAULT_BRAND,
+    accentColor: settings?.accentColor ?? DEFAULT_ACCENT,
+    textColor: settings?.textColor,
+    headingColor: settings?.headingColor,
+    mutedColor: settings?.mutedColor,
+    hintColor: settings?.hintColor,
+    placeholderColor: settings?.placeholderColor,
+    textColorDark: settings?.textColorDark,
+    headingColorDark: settings?.headingColorDark,
+    mutedColorDark: settings?.mutedColorDark,
+    hintColorDark: settings?.hintColorDark,
+    placeholderColorDark: settings?.placeholderColorDark,
+  });
 
   return (
     <html

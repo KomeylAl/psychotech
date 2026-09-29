@@ -8,7 +8,10 @@
   --canvas: #f4f0ea;
   --canvas-soft: #ebe4da;
   --ink: #1c232c;
-  --muted: #5f6a75;
+  --heading: #141a22;
+  --muted: #3f4b58;
+  --hint: #5a6570;
+  --placeholder: #6b7682;
   --muted-soft: color-mix(in srgb, var(--ink) 6%, var(--canvas));
   --brand: #2f7cc4;
   --brand-bright: #3a8fd6;
@@ -61,7 +64,10 @@ html.dark {
   --canvas: #12161c;
   --canvas-soft: #1a212b;
   --ink: #ede8e1;
-  --muted: #9a938a;
+  --heading: #f5f1ea;
+  --muted: #c9c2b8;
+  --hint: #b8b0a6;
+  --placeholder: #a39b91;
   --muted-soft: color-mix(in srgb, var(--ink) 8%, var(--canvas));
   --brand: #5aa0dc;
   --brand-bright: #7bb8e8;
@@ -104,7 +110,10 @@ html.dark {
   --color-canvas: var(--canvas);
   --color-canvas-soft: var(--canvas-soft);
   --color-ink: var(--ink);
+  --color-heading: var(--heading);
   --color-muted: var(--muted-soft);
+  --color-hint: var(--hint);
+  --color-placeholder: var(--placeholder);
   --color-brand: var(--brand);
   --color-brand-bright: var(--brand-bright);
   --color-brand-deep: var(--brand-deep);
@@ -159,6 +168,22 @@ html.dark {
 /* Keep site `text-muted` as readable secondary text (not the soft surface). */
 @utility text-muted {
   color: var(--muted);
+}
+
+@utility text-hint {
+  color: var(--hint);
+}
+
+@utility text-heading {
+  color: var(--heading);
+}
+
+@utility text-placeholder {
+  color: var(--placeholder);
+}
+
+:where(h1, h2, h3, h4) {
+  color: var(--heading);
 }
 
 html {
@@ -392,7 +417,7 @@ body {
 }
 
 .input::placeholder {
-  color: color-mix(in srgb, var(--muted) 80%, transparent);
+  color: var(--placeholder);
 }
 
 .input:focus {

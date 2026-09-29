@@ -64,19 +64,123 @@ export default async function AdminSettingsPage() {
               hint="تأکیدهای مکمل و جزئیات بصری"
             />
           </div>
-          <div className="mt-4 flex flex-wrap gap-3 text-xs text-muted">
-            <span
-              className="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5"
-              style={{ background: settings.brandColor, color: "#fff" }}
+
+          <div className="mt-8 border-t border-line pt-6">
+            <h3 className="text-base font-semibold">متون — حالت روشن</h3>
+            <p className="mt-1 text-sm text-hint">
+              رنگ متن‌های اصلی، تیترها، زیرمتن‌ها، راهنماها و placeholder فیلدها
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ColorField
+                label="متن اصلی"
+                name="textColor"
+                defaultValue={settings.textColor}
+                hint="پاراگراف‌ها و متن بدنه"
+              />
+              <ColorField
+                label="تیترها"
+                name="headingColor"
+                defaultValue={settings.headingColor}
+                hint="عنوان‌های h1 تا h4"
+              />
+              <ColorField
+                label="متن فرعی"
+                name="mutedColor"
+                defaultValue={settings.mutedColor}
+                hint="توضیحات و زیرنویس‌ها"
+              />
+              <ColorField
+                label="راهنما / Hint"
+                name="hintColor"
+                defaultValue={settings.hintColor}
+                hint="نکات کمکی زیر فیلدها"
+              />
+              <ColorField
+                label="Placeholder"
+                name="placeholderColor"
+                defaultValue={settings.placeholderColor}
+                hint="متن داخل فیلدهای خالی"
+              />
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-line pt-6">
+            <h3 className="text-base font-semibold">متون — حالت تاریک</h3>
+            <p className="mt-1 text-sm text-hint">
+              همین نقش‌ها برای تم تاریک؛ کمی روشن‌تر انتخاب کنید تا خوانا بمانند.
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ColorField
+                label="متن اصلی"
+                name="textColorDark"
+                defaultValue={settings.textColorDark}
+              />
+              <ColorField
+                label="تیترها"
+                name="headingColorDark"
+                defaultValue={settings.headingColorDark}
+              />
+              <ColorField
+                label="متن فرعی"
+                name="mutedColorDark"
+                defaultValue={settings.mutedColorDark}
+              />
+              <ColorField
+                label="راهنما / Hint"
+                name="hintColorDark"
+                defaultValue={settings.hintColorDark}
+              />
+              <ColorField
+                label="Placeholder"
+                name="placeholderColorDark"
+                defaultValue={settings.placeholderColorDark}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div
+              className="rounded-2xl border border-line p-4"
+              style={{
+                background: "#f4f0ea",
+                color: settings.textColor,
+              }}
             >
-              پیش‌نمایش Brand
-            </span>
-            <span
-              className="inline-flex items-center gap-2 rounded-full border border-line px-3 py-1.5"
-              style={{ background: settings.accentColor, color: "#fff" }}
+              <p className="text-xs" style={{ color: settings.hintColor }}>
+                پیش‌نمایش روشن
+              </p>
+              <p className="mt-2 text-lg font-semibold" style={{ color: settings.headingColor }}>
+                تیتر نمونه
+              </p>
+              <p className="mt-1 text-sm">متن اصلی نمونه برای خوانایی</p>
+              <p className="mt-1 text-sm" style={{ color: settings.mutedColor }}>
+                متن فرعی و توضیح کوتاه
+              </p>
+              <p className="mt-2 text-sm" style={{ color: settings.placeholderColor }}>
+                placeholder داخل فیلد…
+              </p>
+            </div>
+            <div
+              className="rounded-2xl border border-line p-4"
+              style={{
+                background: "#12161c",
+                color: settings.textColorDark,
+              }}
             >
-              پیش‌نمایش Accent
-            </span>
+              <p className="text-xs" style={{ color: settings.hintColorDark }}>
+                پیش‌نمایش تاریک
+              </p>
+              <p className="mt-2 text-lg font-semibold" style={{ color: settings.headingColorDark }}>
+                تیتر نمونه
+              </p>
+              <p className="mt-1 text-sm">متن اصلی نمونه برای خوانایی</p>
+              <p className="mt-1 text-sm" style={{ color: settings.mutedColorDark }}>
+                متن فرعی و توضیح کوتاه
+              </p>
+              <p className="mt-2 text-sm" style={{ color: settings.placeholderColorDark }}>
+                placeholder داخل فیلد…
+              </p>
+            </div>
           </div>
         </AdminCard>
 

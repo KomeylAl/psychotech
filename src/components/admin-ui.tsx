@@ -152,7 +152,7 @@ export function Field({
           className="input"
         />
       )}
-      {hint ? <span className="mt-1 block text-xs text-muted">{hint}</span> : null}
+      {hint ? <span className="mt-1 block text-xs text-hint">{hint}</span> : null}
     </label>
   );
 }
@@ -197,7 +197,7 @@ export function ImageField({
         accept={accept}
         className="input file:me-3 file:rounded-full file:border-0 file:bg-brand/15 file:px-3 file:py-1 file:text-brand"
       />
-      <p className="mt-1 text-xs text-muted">{hint}</p>
+      <p className="mt-1 text-xs text-hint">{hint}</p>
     </div>
   );
 }
@@ -236,7 +236,7 @@ export function ColorField({
           required
         />
       </div>
-      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-hint">{hint}</p> : null}
     </label>
   );
 }

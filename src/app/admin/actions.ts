@@ -118,6 +118,19 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
 
     const brandColor = parseColor(str(formData, "brandColor"), "رنگ اصلی");
     const accentColor = parseColor(str(formData, "accentColor"), "رنگ فرعی");
+    const textColor = parseColor(str(formData, "textColor"), "متن اصلی");
+    const headingColor = parseColor(str(formData, "headingColor"), "تیترها");
+    const mutedColor = parseColor(str(formData, "mutedColor"), "متن فرعی");
+    const hintColor = parseColor(str(formData, "hintColor"), "راهنماها");
+    const placeholderColor = parseColor(str(formData, "placeholderColor"), "Placeholder");
+    const textColorDark = parseColor(str(formData, "textColorDark"), "متن اصلی (تاریک)");
+    const headingColorDark = parseColor(str(formData, "headingColorDark"), "تیترها (تاریک)");
+    const mutedColorDark = parseColor(str(formData, "mutedColorDark"), "متن فرعی (تاریک)");
+    const hintColorDark = parseColor(str(formData, "hintColorDark"), "راهنماها (تاریک)");
+    const placeholderColorDark = parseColor(
+      str(formData, "placeholderColorDark"),
+      "Placeholder (تاریک)",
+    );
     const heroVisualMode = str(formData, "heroVisualMode") === "image" ? "image" : "motion";
 
     if (heroVisualMode === "image") {
@@ -138,6 +151,16 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         location: str(formData, "location"),
         brandColor,
         accentColor,
+        textColor,
+        headingColor,
+        mutedColor,
+        hintColor,
+        placeholderColor,
+        textColorDark,
+        headingColorDark,
+        mutedColorDark,
+        hintColorDark,
+        placeholderColorDark,
         heroVisualMode,
         heroTitleLine1: str(formData, "heroTitleLine1"),
         heroTitleHighlight: str(formData, "heroTitleHighlight"),

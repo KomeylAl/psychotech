@@ -67,6 +67,17 @@ model SiteSettings {
   brandColor  String @default("#2f7cc4")
   accentColor String @default("#c96b32")
 
+  textColor          String @default("#1c232c")
+  headingColor       String @default("#141a22")
+  mutedColor         String @default("#3f4b58")
+  hintColor          String @default("#5a6570")
+  placeholderColor   String @default("#6b7682")
+  textColorDark      String @default("#ede8e1")
+  headingColorDark   String @default("#f5f1ea")
+  mutedColorDark     String @default("#c9c2b8")
+  hintColorDark      String @default("#b8b0a6")
+  placeholderColorDark String @default("#a39b91")
+
   heroVisualMode String  @default("motion")
   heroVisualUrl  String?
 

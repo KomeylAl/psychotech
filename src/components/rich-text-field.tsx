@@ -31,7 +31,7 @@ export function RichTextField({
       <Label htmlFor={name}>{label}</Label>
       <input type="hidden" id={name} name={name} value={value} />
       <RichTextEditor content={defaultValue} onChange={setValue} />
-      {hint ? <p className="text-xs text-muted">{hint}</p> : null}
+      {hint ? <p className="text-xs text-hint">{hint}</p> : null}
     </div>
   );
 }

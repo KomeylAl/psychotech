@@ -3,28 +3,25 @@ const DEFAULT_ACCENT = "#c96b32";
 
 export const DEFAULT_TEXT_COLORS = {
   textColor: "#1c232c",
-  headingColor: "#141a22",
-  mutedColor: "#3f4b58",
-  hintColor: "#5a6570",
-  placeholderColor: "#6b7682",
-  textColorDark: "#ede8e1",
-  headingColorDark: "#f5f1ea",
-  mutedColorDark: "#c9c2b8",
-  hintColorDark: "#b8b0a6",
-  placeholderColorDark: "#a39b91",
+  headingColor: "#0f1419",
+  mutedColor: "#2f3a46",
+  navColor: "#2a3440",
+  labelColor: "#3a4552",
+  hintColor: "#4a5563",
+  placeholderColor: "#5c6775",
+  eyebrowColor: "#c96b32",
+  textColorDark: "#f0ebe4",
+  headingColorDark: "#faf7f2",
+  mutedColorDark: "#d2cbc2",
+  navColorDark: "#ddd6cd",
+  labelColorDark: "#cfc8bf",
+  hintColorDark: "#c4bdb4",
+  placeholderColorDark: "#b5aea4",
+  eyebrowColorDark: "#e08a4a",
 } as const;
 
 export type ThemeTextColors = {
-  textColor?: string | null;
-  headingColor?: string | null;
-  mutedColor?: string | null;
-  hintColor?: string | null;
-  placeholderColor?: string | null;
-  textColorDark?: string | null;
-  headingColorDark?: string | null;
-  mutedColorDark?: string | null;
-  hintColorDark?: string | null;
-  placeholderColorDark?: string | null;
+  [K in keyof typeof DEFAULT_TEXT_COLORS]?: string | null;
 };
 
 export type ThemeColorsInput = ThemeTextColors & {
@@ -80,6 +77,13 @@ function contrastInk(hex: string) {
   return luminance > 0.62 ? "#0e141a" : "#f7fbff";
 }
 
+function pick(
+  input: ThemeTextColors,
+  key: keyof typeof DEFAULT_TEXT_COLORS,
+) {
+  return normalizeHex(input[key], DEFAULT_TEXT_COLORS[key]);
+}
+
 export function buildThemeCss(input: ThemeColorsInput = {}) {
   const brand = normalizeHex(input.brandColor, DEFAULT_BRAND);
   const accent = normalizeHex(input.accentColor, DEFAULT_ACCENT);
@@ -92,11 +96,14 @@ export function buildThemeCss(input: ThemeColorsInput = {}) {
     accentBright: lighten(accent, 0.14),
     onBrand: contrastInk(brand),
     onAccent: contrastInk(accent),
-    ink: normalizeHex(input.textColor, DEFAULT_TEXT_COLORS.textColor),
-    heading: normalizeHex(input.headingColor, DEFAULT_TEXT_COLORS.headingColor),
-    muted: normalizeHex(input.mutedColor, DEFAULT_TEXT_COLORS.mutedColor),
-    hint: normalizeHex(input.hintColor, DEFAULT_TEXT_COLORS.hintColor),
-    placeholder: normalizeHex(input.placeholderColor, DEFAULT_TEXT_COLORS.placeholderColor),
+    ink: pick(input, "textColor"),
+    heading: pick(input, "headingColor"),
+    muted: pick(input, "mutedColor"),
+    nav: pick(input, "navColor"),
+    label: pick(input, "labelColor"),
+    hint: pick(input, "hintColor"),
+    placeholder: pick(input, "placeholderColor"),
+    eyebrow: pick(input, "eyebrowColor"),
   };
 
   const dark = {
@@ -107,56 +114,42 @@ export function buildThemeCss(input: ThemeColorsInput = {}) {
     accentBright: lighten(accent, 0.3),
     onBrand: contrastInk(lighten(brand, 0.22)),
     onAccent: contrastInk(lighten(accent, 0.18)),
-    ink: normalizeHex(input.textColorDark, DEFAULT_TEXT_COLORS.textColorDark),
-    heading: normalizeHex(input.headingColorDark, DEFAULT_TEXT_COLORS.headingColorDark),
-    muted: normalizeHex(input.mutedColorDark, DEFAULT_TEXT_COLORS.mutedColorDark),
-    hint: normalizeHex(input.hintColorDark, DEFAULT_TEXT_COLORS.hintColorDark),
-    placeholder: normalizeHex(
-      input.placeholderColorDark,
-      DEFAULT_TEXT_COLORS.placeholderColorDark,
-    ),
+    ink: pick(input, "textColorDark"),
+    heading: pick(input, "headingColorDark"),
+    muted: pick(input, "mutedColorDark"),
+    nav: pick(input, "navColorDark"),
+    label: pick(input, "labelColorDark"),
+    hint: pick(input, "hintColorDark"),
+    placeholder: pick(input, "placeholderColorDark"),
+    eyebrow: pick(input, "eyebrowColorDark"),
   };
 
-  return `:root{
-  --brand:${light.brand};
-  --brand-bright:${light.brandBright};
-  --brand-deep:${light.brandDeep};
-  --accent:${light.accent};
-  --accent-bright:${light.accentBright};
-  --on-brand:${light.onBrand};
-  --on-accent:${light.onAccent};
-  --ink:${light.ink};
-  --heading:${light.heading};
-  --muted:${light.muted};
-  --hint:${light.hint};
-  --placeholder:${light.placeholder};
-  --foreground:${light.ink};
-  --muted-foreground:${light.muted};
-  --card-foreground:${light.ink};
-  --popover-foreground:${light.ink};
-  --secondary-foreground:${light.ink};
-  --sidebar-foreground:${light.ink};
-}
-html.dark{
-  --brand:${dark.brand};
-  --brand-bright:${dark.brandBright};
-  --brand-deep:${dark.brandDeep};
-  --accent:${dark.accent};
-  --accent-bright:${dark.accentBright};
-  --on-brand:${dark.onBrand};
-  --on-accent:${dark.onAccent};
-  --ink:${dark.ink};
-  --heading:${dark.heading};
-  --muted:${dark.muted};
-  --hint:${dark.hint};
-  --placeholder:${dark.placeholder};
-  --foreground:${dark.ink};
-  --muted-foreground:${dark.muted};
-  --card-foreground:${dark.ink};
-  --popover-foreground:${dark.ink};
-  --secondary-foreground:${dark.ink};
-  --sidebar-foreground:${dark.ink};
-}`;
+  const block = (t: typeof light) => `
+  --brand:${t.brand};
+  --brand-bright:${t.brandBright};
+  --brand-deep:${t.brandDeep};
+  --accent:${t.accent};
+  --accent-bright:${t.accentBright};
+  --on-brand:${t.onBrand};
+  --on-accent:${t.onAccent};
+  --ink:${t.ink};
+  --heading:${t.heading};
+  --muted:${t.muted};
+  --nav:${t.nav};
+  --label:${t.label};
+  --hint:${t.hint};
+  --placeholder:${t.placeholder};
+  --eyebrow:${t.eyebrow};
+  --foreground:${t.ink};
+  --muted-foreground:${t.muted};
+  --card-foreground:${t.ink};
+  --popover-foreground:${t.ink};
+  --secondary-foreground:${t.ink};
+  --sidebar-foreground:${t.ink};
+`;
+
+  return `:root{${block(light)}}
+html.dark{${block(dark)}}`;
 }
 
 export { DEFAULT_BRAND, DEFAULT_ACCENT };

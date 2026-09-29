@@ -33,11 +33,11 @@ export function LoginForm({ alreadyAuthed = false }: { alreadyAuthed?: boolean }
       <p className="mt-2 text-sm text-muted">برای ویرایش محتوای سایت وارد شوید.</p>
 
       <label className="mt-6 block text-sm">
-        <span className="mb-2 block text-muted">نام کاربری</span>
+        <span className="mb-2 block text-label">نام کاربری</span>
         <input name="username" required autoComplete="username" className="input" dir="ltr" />
       </label>
       <label className="mt-4 block text-sm">
-        <span className="mb-2 block text-muted">رمز عبور</span>
+        <span className="mb-2 block text-label">رمز عبور</span>
         <input
           name="password"
           type="password"

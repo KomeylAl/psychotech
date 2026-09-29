@@ -26,7 +26,7 @@ export function Footer({ settings, nav }: FooterProps) {
             <ul className="space-y-2">
               {nav.map((item) => (
                 <li key={item.href}>
-                  <a href={item.href} className="hover:text-brand">
+                  <a href={item.href} className="text-nav hover:text-brand">
                     {item.label}
                   </a>
                 </li>

@@ -121,16 +121,22 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
     const textColor = parseColor(str(formData, "textColor"), "متن اصلی");
     const headingColor = parseColor(str(formData, "headingColor"), "تیترها");
     const mutedColor = parseColor(str(formData, "mutedColor"), "متن فرعی");
+    const navColor = parseColor(str(formData, "navColor"), "لینک منو");
+    const labelColor = parseColor(str(formData, "labelColor"), "برچسب فیلد");
     const hintColor = parseColor(str(formData, "hintColor"), "راهنماها");
     const placeholderColor = parseColor(str(formData, "placeholderColor"), "Placeholder");
+    const eyebrowColor = parseColor(str(formData, "eyebrowColor"), "Eyebrow");
     const textColorDark = parseColor(str(formData, "textColorDark"), "متن اصلی (تاریک)");
     const headingColorDark = parseColor(str(formData, "headingColorDark"), "تیترها (تاریک)");
     const mutedColorDark = parseColor(str(formData, "mutedColorDark"), "متن فرعی (تاریک)");
+    const navColorDark = parseColor(str(formData, "navColorDark"), "لینک منو (تاریک)");
+    const labelColorDark = parseColor(str(formData, "labelColorDark"), "برچسب (تاریک)");
     const hintColorDark = parseColor(str(formData, "hintColorDark"), "راهنماها (تاریک)");
     const placeholderColorDark = parseColor(
       str(formData, "placeholderColorDark"),
       "Placeholder (تاریک)",
     );
+    const eyebrowColorDark = parseColor(str(formData, "eyebrowColorDark"), "Eyebrow (تاریک)");
     const heroVisualMode = str(formData, "heroVisualMode") === "image" ? "image" : "motion";
 
     if (heroVisualMode === "image") {
@@ -154,13 +160,19 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         textColor,
         headingColor,
         mutedColor,
+        navColor,
+        labelColor,
         hintColor,
         placeholderColor,
+        eyebrowColor,
         textColorDark,
         headingColorDark,
         mutedColorDark,
+        navColorDark,
+        labelColorDark,
         hintColorDark,
         placeholderColorDark,
+        eyebrowColorDark,
         heroVisualMode,
         heroTitleLine1: str(formData, "heroTitleLine1"),
         heroTitleHighlight: str(formData, "heroTitleHighlight"),

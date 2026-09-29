@@ -8,10 +8,13 @@
   --canvas: #f4f0ea;
   --canvas-soft: #ebe4da;
   --ink: #1c232c;
-  --heading: #141a22;
-  --muted: #3f4b58;
-  --hint: #5a6570;
-  --placeholder: #6b7682;
+  --heading: #0f1419;
+  --muted: #2f3a46;
+  --nav: #2a3440;
+  --label: #3a4552;
+  --hint: #4a5563;
+  --placeholder: #5c6775;
+  --eyebrow: #c96b32;
   --muted-soft: color-mix(in srgb, var(--ink) 6%, var(--canvas));
   --brand: #2f7cc4;
   --brand-bright: #3a8fd6;
@@ -63,11 +66,14 @@
 html.dark {
   --canvas: #12161c;
   --canvas-soft: #1a212b;
-  --ink: #ede8e1;
-  --heading: #f5f1ea;
-  --muted: #c9c2b8;
-  --hint: #b8b0a6;
-  --placeholder: #a39b91;
+  --ink: #f0ebe4;
+  --heading: #faf7f2;
+  --muted: #d2cbc2;
+  --nav: #ddd6cd;
+  --label: #cfc8bf;
+  --hint: #c4bdb4;
+  --placeholder: #b5aea4;
+  --eyebrow: #e08a4a;
   --muted-soft: color-mix(in srgb, var(--ink) 8%, var(--canvas));
   --brand: #5aa0dc;
   --brand-bright: #7bb8e8;
@@ -111,9 +117,12 @@ html.dark {
   --color-canvas-soft: var(--canvas-soft);
   --color-ink: var(--ink);
   --color-heading: var(--heading);
-  --color-muted: var(--muted-soft);
+  --color-muted: var(--muted);
+  --color-nav: var(--nav);
+  --color-label: var(--label);
   --color-hint: var(--hint);
   --color-placeholder: var(--placeholder);
+  --color-eyebrow: var(--eyebrow);
   --color-brand: var(--brand);
   --color-brand-bright: var(--brand-bright);
   --color-brand-deep: var(--brand-deep);
@@ -165,9 +174,17 @@ html.dark {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Keep site `text-muted` as readable secondary text (not the soft surface). */
+/* Semantic text roles — always readable against canvas. */
 @utility text-muted {
   color: var(--muted);
+}
+
+@utility text-nav {
+  color: var(--nav);
+}
+
+@utility text-label {
+  color: var(--label);
 }
 
 @utility text-hint {
@@ -182,8 +199,20 @@ html.dark {
   color: var(--placeholder);
 }
 
+@utility text-eyebrow {
+  color: var(--eyebrow);
+}
+
 :where(h1, h2, h3, h4) {
   color: var(--heading);
+}
+
+.eyebrow {
+  font-family: var(--font-outfit), var(--font-vazirmatn), sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
 }
 
 html {
@@ -210,14 +239,6 @@ body {
 
 .font-display {
   font-family: var(--font-outfit), var(--font-vazirmatn), sans-serif;
-}
-
-.eyebrow {
-  font-family: var(--font-outfit), var(--font-vazirmatn), sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--accent);
 }
 
 .grain {

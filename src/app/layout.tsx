@@ -112,13 +112,19 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     textColor: settings?.textColor,
     headingColor: settings?.headingColor,
     mutedColor: settings?.mutedColor,
+    navColor: settings?.navColor,
+    labelColor: settings?.labelColor,
     hintColor: settings?.hintColor,
     placeholderColor: settings?.placeholderColor,
+    eyebrowColor: settings?.eyebrowColor,
     textColorDark: settings?.textColorDark,
     headingColorDark: settings?.headingColorDark,
     mutedColorDark: settings?.mutedColorDark,
+    navColorDark: settings?.navColorDark,
+    labelColorDark: settings?.labelColorDark,
     hintColorDark: settings?.hintColorDark,
     placeholderColorDark: settings?.placeholderColorDark,
+    eyebrowColorDark: settings?.eyebrowColorDark,
   });
 
   return (

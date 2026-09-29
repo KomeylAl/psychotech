@@ -72,7 +72,7 @@ export function AdminShell({
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-xl px-3 py-2 text-sm text-muted transition-colors hover:bg-brand/10 hover:text-ink"
+                className="rounded-xl px-3 py-2 text-sm text-nav transition-colors hover:bg-brand/10 hover:text-ink"
               >
                 {link.label}
               </Link>
@@ -132,7 +132,7 @@ export function Field({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-2 block text-muted">{label}</span>
+      <span className="mb-2 block text-label">{label}</span>
       {rows ? (
         <textarea
           name={name}
@@ -174,7 +174,7 @@ export function ImageField({
 }) {
   return (
     <div className="text-sm">
-      <span className="mb-2 block text-muted">{label}</span>
+      <span className="mb-2 block text-label">{label}</span>
       {currentUrl ? (
         <div className="mb-3 flex flex-wrap items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -217,7 +217,7 @@ export function ColorField({
 
   return (
     <label className="block text-sm">
-      <span className="mb-2 block text-muted">{label}</span>
+      <span className="mb-2 block text-label">{label}</span>
       <div className="flex items-center gap-3">
         <input
           type="color"
@@ -307,11 +307,13 @@ export function AdminForm({
   children,
   className,
   successMessage = "تغییرات ذخیره شد.",
+  stickySubmitLabel,
 }: {
   action: (formData: FormData) => Promise<ActionResult>;
   children: ReactNode;
   className?: string;
   successMessage?: string;
+  stickySubmitLabel?: string;
 }) {
   const { push } = useToast();
   const router = useRouter();
@@ -340,6 +342,26 @@ export function AdminForm({
     <form action={formAction} className={className}>
       <fieldset disabled={pending} className="min-w-0 contents">
         {children}
+        {stickySubmitLabel ? (
+          <>
+            <div className="h-24" aria-hidden />
+            <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50">
+              <div className="border-t border-line bg-canvas/90 px-4 py-3 backdrop-blur-xl lg:px-6">
+                <div className="pointer-events-auto mx-auto flex max-w-7xl items-center justify-between gap-4 lg:grid lg:grid-cols-[240px_1fr] lg:gap-6">
+                  <div className="hidden lg:block" />
+                  <div className="flex w-full items-center justify-between gap-3 sm:justify-end">
+                    <p className="text-xs text-hint sm:me-auto">
+                      {pending ? "در حال ذخیره…" : "تغییرات پس از ذخیره اعمال می‌شوند"}
+                    </p>
+                    <button type="submit" className="btn-primary shadow-lg" disabled={pending}>
+                      {pending ? "در حال ذخیره…" : stickySubmitLabel}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : null}
       </fieldset>
     </form>
   );

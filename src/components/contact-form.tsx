@@ -28,11 +28,11 @@ export function ContactForm({
     <form action={action} className="glass rounded-3xl p-6 sm:p-8">
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm">
-          <span className="mb-2 block text-muted">نام</span>
+          <span className="mb-2 block text-label">نام</span>
           <input name="name" required autoComplete="name" className="input" />
         </label>
         <label className="block text-sm">
-          <span className="mb-2 block text-muted">ایمیل</span>
+          <span className="mb-2 block text-label">ایمیل</span>
           <input
             name="email"
             type="email"
@@ -44,11 +44,11 @@ export function ContactForm({
         </label>
       </div>
       <label className="mt-4 block text-sm">
-        <span className="mb-2 block text-muted">سازمان یا کلینیک (اختیاری)</span>
+        <span className="mb-2 block text-label">سازمان یا کلینیک (اختیاری)</span>
         <input name="organization" className="input" />
       </label>
       <label className="mt-4 block text-sm">
-        <span className="mb-2 block text-muted">پیام</span>
+        <span className="mb-2 block text-label">پیام</span>
         <textarea name="message" required rows={5} className="input min-h-32 resize-y" />
       </label>
       {state.error ? (

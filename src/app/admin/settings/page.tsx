@@ -12,6 +12,24 @@ import {
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+function TextRoleGroup({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-line bg-canvas-soft/40 p-4 sm:p-5">
+      <h3 className="text-sm font-semibold tracking-tight">{title}</h3>
+      <p className="mt-1 text-xs leading-6 text-hint">{description}</p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{children}</div>
+    </div>
+  );
+}
+
 export default async function AdminSettingsPage() {
   const session = await getAdminSession();
   if (!session) redirect("/admin/login");
@@ -22,7 +40,11 @@ export default async function AdminSettingsPage() {
 
   return (
     <AdminShell username={session.username} title="تنظیمات و متن‌ها">
-      <AdminForm action={updateSettingsAction} className="space-y-5">
+      <AdminForm
+        action={updateSettingsAction}
+        className="space-y-5"
+        stickySubmitLabel="ذخیره تنظیمات"
+      >
         <AdminCard title="هویت بصری">
           <div className="grid gap-6 sm:grid-cols-3">
             <ImageField
@@ -49,13 +71,13 @@ export default async function AdminSettingsPage() {
           </div>
         </AdminCard>
 
-        <AdminCard title="رنگ‌بندی">
+        <AdminCard title="رنگ‌های برند">
           <div className="grid gap-4 sm:grid-cols-2">
             <ColorField
               label="رنگ اصلی (Brand)"
               name="brandColor"
               defaultValue={settings.brandColor}
-              hint="دکمه‌ها، لینک‌ها و هایلایت‌های اصلی"
+              hint="دکمه‌ها، لینک‌های فعال، هایلایت‌ها"
             />
             <ColorField
               label="رنگ فرعی (Accent)"
@@ -64,122 +86,153 @@ export default async function AdminSettingsPage() {
               hint="تأکیدهای مکمل و جزئیات بصری"
             />
           </div>
+        </AdminCard>
 
-          <div className="mt-8 border-t border-line pt-6">
-            <h3 className="text-base font-semibold">متون — حالت روشن</h3>
-            <p className="mt-1 text-sm text-hint">
-              رنگ متن‌های اصلی، تیترها، زیرمتن‌ها، راهنماها و placeholder فیلدها
-            </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <AdminCard title="رنگ‌بندی متن‌ها — حالت روشن">
+          <div className="space-y-5">
+            <TextRoleGroup
+              title="۱. بدنه و تیتر"
+              description="متن اصلی پاراگراف‌ها و عنوان‌های صفحه"
+            >
               <ColorField
-                label="متن اصلی"
+                label="متن اصلی / بدنه"
                 name="textColor"
                 defaultValue={settings.textColor}
-                hint="پاراگراف‌ها و متن بدنه"
+                hint="body, پاراگراف‌ها"
               />
               <ColorField
                 label="تیترها"
                 name="headingColor"
                 defaultValue={settings.headingColor}
-                hint="عنوان‌های h1 تا h4"
+                hint="h1 تا h4"
               />
+            </TextRoleGroup>
+
+            <TextRoleGroup
+              title="۲. متن فرعی و توضیحات"
+              description="توضیح بخش‌ها، بیو، excerpt، کپشن‌ها"
+            >
               <ColorField
-                label="متن فرعی"
+                label="متن فرعی (Muted)"
                 name="mutedColor"
                 defaultValue={settings.mutedColor}
                 hint="توضیحات و زیرنویس‌ها"
               />
+            </TextRoleGroup>
+
+            <TextRoleGroup
+              title="۳. ناوبری و منو"
+              description="آیتم‌های هدر، فوتر و منوی موبایل"
+            >
               <ColorField
-                label="راهنما / Hint"
+                label="لینک‌های منو"
+                name="navColor"
+                defaultValue={settings.navColor}
+                hint="هدر، فوتر، سایدبار ادمین"
+              />
+            </TextRoleGroup>
+
+            <TextRoleGroup
+              title="۴. فرم‌ها"
+              description="برچسب فیلد، راهنما و placeholder"
+            >
+              <ColorField
+                label="برچسب فیلد (Label)"
+                name="labelColor"
+                defaultValue={settings.labelColor}
+                hint="نام فیلد بالای input"
+              />
+              <ColorField
+                label="راهنما (Hint)"
                 name="hintColor"
                 defaultValue={settings.hintColor}
-                hint="نکات کمکی زیر فیلدها"
+                hint="نکته زیر فیلد"
               />
               <ColorField
                 label="Placeholder"
                 name="placeholderColor"
                 defaultValue={settings.placeholderColor}
-                hint="متن داخل فیلدهای خالی"
+                hint="متن داخل فیلد خالی"
               />
-            </div>
-          </div>
+            </TextRoleGroup>
 
-          <div className="mt-8 border-t border-line pt-6">
-            <h3 className="text-base font-semibold">متون — حالت تاریک</h3>
-            <p className="mt-1 text-sm text-hint">
-              همین نقش‌ها برای تم تاریک؛ کمی روشن‌تر انتخاب کنید تا خوانا بمانند.
-            </p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ColorField
-                label="متن اصلی"
-                name="textColorDark"
-                defaultValue={settings.textColorDark}
-              />
-              <ColorField
-                label="تیترها"
-                name="headingColorDark"
-                defaultValue={settings.headingColorDark}
-              />
-              <ColorField
-                label="متن فرعی"
-                name="mutedColorDark"
-                defaultValue={settings.mutedColorDark}
-              />
-              <ColorField
-                label="راهنما / Hint"
-                name="hintColorDark"
-                defaultValue={settings.hintColorDark}
-              />
-              <ColorField
-                label="Placeholder"
-                name="placeholderColorDark"
-                defaultValue={settings.placeholderColorDark}
-              />
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div
-              className="rounded-2xl border border-line p-4"
-              style={{
-                background: "#f4f0ea",
-                color: settings.textColor,
-              }}
+            <TextRoleGroup
+              title="۵. Eyebrow / برچسب بخش"
+              description="متن‌های کوچک بالای تیتر بخش‌ها مثل ۰۱ — شرکت"
             >
-              <p className="text-xs" style={{ color: settings.hintColor }}>
-                پیش‌نمایش روشن
+              <ColorField
+                label="Eyebrow"
+                name="eyebrowColor"
+                defaultValue={settings.eyebrowColor}
+                hint="معمولاً نزدیک به Accent"
+              />
+            </TextRoleGroup>
+
+            <div
+              className="rounded-2xl border border-line p-5"
+              style={{ background: "#f4f0ea", color: settings.textColor }}
+            >
+              <p className="text-[0.7rem] tracking-[0.18em] uppercase" style={{ color: settings.eyebrowColor }}>
+                01 — Preview
               </p>
-              <p className="mt-2 text-lg font-semibold" style={{ color: settings.headingColor }}>
-                تیتر نمونه
+              <p className="mt-2 text-xl font-semibold" style={{ color: settings.headingColor }}>
+                تیتر نمونه در حالت روشن
               </p>
-              <p className="mt-1 text-sm">متن اصلی نمونه برای خوانایی</p>
+              <p className="mt-2 text-sm">متن اصلی بدنه برای سنجش خوانایی.</p>
               <p className="mt-1 text-sm" style={{ color: settings.mutedColor }}>
-                متن فرعی و توضیح کوتاه
+                متن فرعی و توضیح کوتاه بخش.
               </p>
-              <p className="mt-2 text-sm" style={{ color: settings.placeholderColor }}>
-                placeholder داخل فیلد…
-              </p>
+              <div className="mt-3 flex flex-wrap gap-3 text-sm">
+                <span style={{ color: settings.navColor }}>لینک منو</span>
+                <span style={{ color: settings.labelColor }}>برچسب فیلد</span>
+                <span style={{ color: settings.hintColor }}>راهنما</span>
+                <span style={{ color: settings.placeholderColor }}>placeholder…</span>
+              </div>
             </div>
+          </div>
+        </AdminCard>
+
+        <AdminCard title="رنگ‌بندی متن‌ها — حالت تاریک">
+          <div className="space-y-5">
+            <TextRoleGroup title="۱. بدنه و تیتر" description="همان نقش‌ها برای تم تاریک">
+              <ColorField label="متن اصلی / بدنه" name="textColorDark" defaultValue={settings.textColorDark} />
+              <ColorField label="تیترها" name="headingColorDark" defaultValue={settings.headingColorDark} />
+            </TextRoleGroup>
+            <TextRoleGroup title="۲. متن فرعی و توضیحات" description="توضیحات و کپشن‌ها در تاریک">
+              <ColorField label="متن فرعی (Muted)" name="mutedColorDark" defaultValue={settings.mutedColorDark} />
+            </TextRoleGroup>
+            <TextRoleGroup title="۳. ناوبری و منو" description="لینک‌های منو در تاریک">
+              <ColorField label="لینک‌های منو" name="navColorDark" defaultValue={settings.navColorDark} />
+            </TextRoleGroup>
+            <TextRoleGroup title="۴. فرم‌ها" description="برچسب، راهنما و placeholder">
+              <ColorField label="برچسب فیلد" name="labelColorDark" defaultValue={settings.labelColorDark} />
+              <ColorField label="راهنما" name="hintColorDark" defaultValue={settings.hintColorDark} />
+              <ColorField label="Placeholder" name="placeholderColorDark" defaultValue={settings.placeholderColorDark} />
+            </TextRoleGroup>
+            <TextRoleGroup title="۵. Eyebrow" description="برچسب بالای تیتر بخش‌ها">
+              <ColorField label="Eyebrow" name="eyebrowColorDark" defaultValue={settings.eyebrowColorDark} />
+            </TextRoleGroup>
+
             <div
-              className="rounded-2xl border border-line p-4"
-              style={{
-                background: "#12161c",
-                color: settings.textColorDark,
-              }}
+              className="rounded-2xl border border-line p-5"
+              style={{ background: "#12161c", color: settings.textColorDark }}
             >
-              <p className="text-xs" style={{ color: settings.hintColorDark }}>
-                پیش‌نمایش تاریک
+              <p className="text-[0.7rem] tracking-[0.18em] uppercase" style={{ color: settings.eyebrowColorDark }}>
+                01 — Preview
               </p>
-              <p className="mt-2 text-lg font-semibold" style={{ color: settings.headingColorDark }}>
-                تیتر نمونه
+              <p className="mt-2 text-xl font-semibold" style={{ color: settings.headingColorDark }}>
+                تیتر نمونه در حالت تاریک
               </p>
-              <p className="mt-1 text-sm">متن اصلی نمونه برای خوانایی</p>
+              <p className="mt-2 text-sm">متن اصلی بدنه برای سنجش خوانایی.</p>
               <p className="mt-1 text-sm" style={{ color: settings.mutedColorDark }}>
-                متن فرعی و توضیح کوتاه
+                متن فرعی و توضیح کوتاه بخش.
               </p>
-              <p className="mt-2 text-sm" style={{ color: settings.placeholderColorDark }}>
-                placeholder داخل فیلد…
-              </p>
+              <div className="mt-3 flex flex-wrap gap-3 text-sm">
+                <span style={{ color: settings.navColorDark }}>لینک منو</span>
+                <span style={{ color: settings.labelColorDark }}>برچسب فیلد</span>
+                <span style={{ color: settings.hintColorDark }}>راهنما</span>
+                <span style={{ color: settings.placeholderColorDark }}>placeholder…</span>
+              </div>
             </div>
           </div>
         </AdminCard>
@@ -248,10 +301,6 @@ export default async function AdminSettingsPage() {
             <Field label="متن فوتر" name="footerBlurb" defaultValue={settings.footerBlurb} rows={3} required />
           </div>
         </AdminCard>
-
-        <button type="submit" className="btn-primary">
-          ذخیره تنظیمات
-        </button>
       </AdminForm>
     </AdminShell>
   );

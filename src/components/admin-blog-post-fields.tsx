@@ -48,14 +48,14 @@ export function BlogPostFields({
             <Field label="خلاصه" name="excerpt" defaultValue={post?.excerpt ?? ""} rows={3} />
           </div>
           <label className="block text-sm">
-            <span className="mb-2 block text-muted">وضعیت</span>
+            <span className="mb-2 block text-label">وضعیت</span>
             <select name="status" defaultValue={post?.status ?? "draft"} className="input">
               <option value="draft">پیش‌نویس</option>
               <option value="published">منتشر شده</option>
             </select>
           </label>
           <label className="block text-sm">
-            <span className="mb-2 block text-muted">تاریخ انتشار</span>
+            <span className="mb-2 block text-label">تاریخ انتشار</span>
             <input
               type="datetime-local"
               name="publishedAt"
@@ -65,7 +65,7 @@ export function BlogPostFields({
             />
           </label>
           <label className="block text-sm">
-            <span className="mb-2 block text-muted">دسته</span>
+            <span className="mb-2 block text-label">دسته</span>
             <select name="categoryId" defaultValue={post?.categoryId ?? ""} className="input">
               <option value="">بدون دسته</option>
               {categories.map((category) => (

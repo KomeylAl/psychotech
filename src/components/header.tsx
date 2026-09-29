@@ -57,7 +57,7 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
             <a
               key={item.href}
               href={item.href}
-              className="rounded-full px-3.5 py-2 text-sm text-muted transition-colors hover:text-ink"
+              className="rounded-full px-3.5 py-2 text-sm text-nav transition-colors hover:text-ink"
             >
               {item.label}
             </a>
@@ -100,7 +100,7 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="block rounded-xl px-3 py-3 text-lg"
+                  className="block rounded-xl px-3 py-3 text-lg text-nav hover:text-ink"
                   onClick={() => setOpen(false)}
                 >
                   {item.label}

@@ -8,7 +8,7 @@ import {
   getPublishedPostBySlug,
   getRelatedPosts,
 } from "@/lib/blog";
-import { renderMarkdown } from "@/lib/markdown";
+import { renderPostContent } from "@/lib/markdown";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +41,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   if (!post) notFound();
 
   const related = await getRelatedPosts(post.id, post.categoryId);
-  const html = renderMarkdown(post.content);
+  const html = renderPostContent(post.content);
   const date = formatPostDate(post.publishedAt);
 
   return (

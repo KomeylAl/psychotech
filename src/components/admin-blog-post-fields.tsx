@@ -1,4 +1,5 @@
 import { AdminCard, Field, ImageField } from "@/components/admin-ui";
+import { RichTextField } from "@/components/rich-text-field";
 
 export type BlogTaxonomyOption = { id: string; name: string };
 
@@ -107,13 +108,12 @@ export function BlogPostFields({
         )}
       </AdminCard>
 
-      <AdminCard title="متن مطلب (Markdown)">
-        <Field
-          label="محتوا"
+      <AdminCard title="متن مطلب">
+        <RichTextField
           name="content"
+          label="محتوا"
           defaultValue={post?.content ?? ""}
-          rows={18}
-          hint="از Markdown پشتیبانی می‌شود: عنوان‌ها، لیست، لینک، نقل‌قول و کد"
+          hint="از نوار ابزار برای تیتر، لیست، تراز و هایلایت استفاده کنید"
         />
       </AdminCard>
     </>

@@ -3,6 +3,7 @@ import { Outfit, Vazirmatn } from "next/font/google";
 import { themeInitScript } from "@/lib/theme-script";
 import { buildThemeCss, DEFAULT_ACCENT, DEFAULT_BRAND } from "@/lib/theme-colors";
 import { prisma } from "@/lib/prisma";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -115,7 +116,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang="fa"
       dir="rtl"
       suppressHydrationWarning
-      className={`${vazirmatn.variable} ${outfit.variable} h-full antialiased`}
+      className={cn(vazirmatn.variable, outfit.variable, "h-full antialiased")}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

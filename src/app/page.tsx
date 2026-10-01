@@ -5,15 +5,17 @@ import { Contact } from "@/components/contact";
 import { Footer } from "@/components/footer";
 import { Header, HeaderSpacer } from "@/components/header";
 import { Hero } from "@/components/hero";
+import { LatestBlog } from "@/components/latest-blog";
 import { Products } from "@/components/products";
 import { SideRail } from "@/components/side-rail";
 import { Team } from "@/components/team";
+import { getLatestPosts } from "@/lib/blog";
 import { getSiteContent } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const content = await getSiteContent();
+  const [content, latestPosts] = await Promise.all([getSiteContent(), getLatestPosts(3)]);
 
   if (!content) {
     return (
@@ -49,6 +51,7 @@ export default async function Home() {
         <Approach settings={settings} steps={steps} />
         <Products settings={settings} products={products} />
         <Team settings={settings} team={team} />
+        <LatestBlog settings={settings} posts={latestPosts} />
         <Contact settings={settings} />
       </main>
       <Footer settings={settings} nav={nav} />

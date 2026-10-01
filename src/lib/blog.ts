@@ -72,6 +72,18 @@ export async function getPublishedPosts(filters: BlogFilters = {}) {
   };
 }
 
+export async function getLatestPosts(take = 3) {
+  return prisma.blogPost.findMany({
+    where: publishedWhere(),
+    include: {
+      category: true,
+      tags: { include: { tag: true } },
+    },
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+    take,
+  });
+}
+
 export async function getPublishedPostBySlug(slug: string) {
   return prisma.blogPost.findFirst({
     where: {

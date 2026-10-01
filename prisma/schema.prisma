@@ -52,6 +52,11 @@ model SiteSettings {
   teamTitle        String
   teamDescription  String
 
+  blogEyebrow     String @default("05 — بلاگ")
+  blogTitle       String @default("آخرین نوشته‌ها")
+  blogDescription String @default("یادداشت‌هایی دربارهٔ روان‌شناسی، محصول و ساخت نرم‌افزار در تقاطع انسان و فناوری.")
+  blogCta         String @default("مشاهده همه مقالات")
+
   contactEyebrow      String
   contactTitle        String
   contactDescription  String

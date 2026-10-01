@@ -282,7 +282,7 @@ export default async function AdminSettingsPage() {
           </div>
         </AdminCard>
 
-        <AdminCard title="رویکرد / محصولات / تیم / تماس / فوتر">
+        <AdminCard title="رویکرد / محصولات / تیم / بلاگ / تماس / فوتر">
           <div className="grid gap-4">
             <Field label="رویکرد — eyebrow" name="approachEyebrow" defaultValue={settings.approachEyebrow} required />
             <Field label="رویکرد — عنوان" name="approachTitle" defaultValue={settings.approachTitle} required />
@@ -293,6 +293,10 @@ export default async function AdminSettingsPage() {
             <Field label="تیم — eyebrow" name="teamEyebrow" defaultValue={settings.teamEyebrow} required />
             <Field label="تیم — عنوان" name="teamTitle" defaultValue={settings.teamTitle} required />
             <Field label="تیم — توضیح" name="teamDescription" defaultValue={settings.teamDescription} rows={3} required />
+            <Field label="بلاگ — eyebrow" name="blogEyebrow" defaultValue={settings.blogEyebrow} required />
+            <Field label="بلاگ — عنوان" name="blogTitle" defaultValue={settings.blogTitle} required />
+            <Field label="بلاگ — توضیح" name="blogDescription" defaultValue={settings.blogDescription} rows={3} required />
+            <Field label="بلاگ — دکمه مشاهده همه" name="blogCta" defaultValue={settings.blogCta} required />
             <Field label="تماس — eyebrow" name="contactEyebrow" defaultValue={settings.contactEyebrow} required />
             <Field label="تماس — عنوان" name="contactTitle" defaultValue={settings.contactTitle} required />
             <Field label="تماس — توضیح" name="contactDescription" defaultValue={settings.contactDescription} rows={3} required />

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Keyword, SiteSettings } from "@/generated/prisma/client";
 
 function MindField() {
@@ -71,7 +72,7 @@ export function Hero({ settings, keywords }: HeroProps) {
   return (
     <section id="top" className="relative overflow-hidden px-5 pt-10 pb-20 sm:px-8 sm:pt-16 lg:pt-8">
       <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
-        <div>
+        <div className="rise">
           <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-canvas-soft/70 px-3 py-1.5 text-xs text-muted">
             <span className="size-1.5 rounded-full bg-brand" />
             <span className="font-display tracking-[0.18em] uppercase">{settings.tagline}</span>
@@ -84,13 +85,13 @@ export function Hero({ settings, keywords }: HeroProps) {
             {settings.heroDescription}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a href="#products" className="btn-primary">
+            <Link href="/products" className="btn-primary">
               {settings.heroCtaPrimary}
               <span aria-hidden>←</span>
-            </a>
-            <a href="#contact" className="btn-ghost">
+            </Link>
+            <Link href="/contact" className="btn-ghost">
               {settings.heroCtaSecondary}
-            </a>
+            </Link>
           </div>
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-8">
             <div>
@@ -108,7 +109,7 @@ export function Hero({ settings, keywords }: HeroProps) {
           </dl>
         </div>
         {settings.heroVisualMode === "image" && settings.heroVisualUrl ? (
-          <div className="relative mx-auto aspect-square w-full max-w-[34rem] overflow-hidden rounded-[2rem] border border-line bg-canvas-soft">
+          <div className="rise relative mx-auto aspect-square w-full max-w-[34rem] overflow-hidden rounded-[2rem] border border-line bg-canvas-soft" style={{ animationDelay: "140ms" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={settings.heroVisualUrl}
@@ -117,7 +118,9 @@ export function Hero({ settings, keywords }: HeroProps) {
             />
           </div>
         ) : (
-          <MindField />
+          <div className="rise" style={{ animationDelay: "140ms" }}>
+            <MindField />
+          </div>
         )}
       </div>
       {words.length > 0 ? (

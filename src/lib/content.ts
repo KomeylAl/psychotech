@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { toPublicHref } from "@/lib/routes";
 import type {
   ApproachStep,
   Keyword,
@@ -41,19 +42,42 @@ export async function getSiteContent(): Promise<SiteContent | null> {
     prisma.keyword.findMany({ orderBy: { sortOrder: "asc" } }),
   ]);
 
-  const hasBlog = nav.some((item) => item.href === "/blog" || item.href.startsWith("/blog"));
-  const navWithBlog = hasBlog
-    ? nav
-    : [
-        ...nav.filter((item) => item.href !== "#contact"),
-        {
-          id: "blog-fallback",
-          href: "/blog",
-          label: "بلاگ",
-          sortOrder: 40,
-        },
-        ...nav.filter((item) => item.href === "#contact"),
-      ];
+  return {
+    settings,
+    nav: toPublicNav(ensureBlogNav(nav)),
+    products,
+    team,
+    values,
+    steps,
+    keywords,
+  };
+}
 
-  return { settings, nav: navWithBlog, products, team, values, steps, keywords };
+function ensureBlogNav(nav: NavItem[]): NavItem[] {
+  const hasBlog = nav.some((item) => {
+    const href = toPublicHref(item.href);
+    return href === "/blog" || href.startsWith("/blog/");
+  });
+  if (hasBlog) return nav;
+
+  const blogItem: NavItem = {
+    id: "blog-fallback",
+    href: "/blog",
+    label: "بلاگ",
+    sortOrder: 40,
+  };
+  const contactIndex = nav.findIndex((item) => toPublicHref(item.href) === "/contact");
+  if (contactIndex === -1) return [...nav, blogItem];
+  return [...nav.slice(0, contactIndex), blogItem, ...nav.slice(contactIndex)];
+}
+
+function toPublicNav(nav: NavItem[]): NavItem[] {
+  return nav.map((item) => ({ ...item, href: toPublicHref(item.href) }));
+}
+
+export async function getProductBySlug(slug: string): Promise<ProductWithPoints | null> {
+  return prisma.product.findUnique({
+    where: { slug },
+    include: { points: { orderBy: { sortOrder: "asc" } } },
+  });
 }

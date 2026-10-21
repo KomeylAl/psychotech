@@ -84,12 +84,12 @@ async function main() {
   if (navCount === 0) {
     await prisma.navItem.createMany({
       data: [
-        { href: "#about", label: "شرکت", sortOrder: 0 },
-        { href: "#approach", label: "رویکرد", sortOrder: 1 },
-        { href: "#products", label: "محصولات", sortOrder: 2 },
-        { href: "#team", label: "تیم", sortOrder: 3 },
+        { href: "/about", label: "شرکت", sortOrder: 0 },
+        { href: "/approach", label: "رویکرد", sortOrder: 1 },
+        { href: "/products", label: "محصولات", sortOrder: 2 },
+        { href: "/team", label: "تیم", sortOrder: 3 },
         { href: "/blog", label: "بلاگ", sortOrder: 4 },
-        { href: "#contact", label: "ارتباط", sortOrder: 5 },
+        { href: "/contact", label: "ارتباط", sortOrder: 5 },
       ],
     });
   } else {

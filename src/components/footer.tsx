@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "@/components/logo";
 import type { NavLink } from "@/components/header";
 import type { SiteSettings } from "@/generated/prisma/client";
@@ -25,10 +26,16 @@ export function Footer({ settings, nav }: FooterProps) {
             <p className="mb-3 text-muted">مسیر</p>
             <ul className="space-y-2">
               {nav.map((item) => (
-                <li key={item.href}>
-                  <a href={item.href} className="text-nav hover:text-brand">
-                    {item.label}
-                  </a>
+                <li key={item.id ?? item.href}>
+                  {item.href.startsWith("/") ? (
+                    <Link href={item.href} className="text-nav transition-colors hover:text-brand">
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <a href={item.href} className="text-nav transition-colors hover:text-brand">
+                      {item.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

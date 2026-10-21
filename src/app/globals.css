@@ -394,9 +394,19 @@ body {
   animation: pulse-ring 5.5s ease-in-out infinite;
 }
 
-.reveal-pending {
+.reveal-pending,
+.reveal-fade-pending,
+.reveal-scale-pending {
   opacity: 0;
+}
+
+.reveal-pending,
+.reveal-scale-pending {
   transform: translateY(18px);
+}
+
+.reveal-scale-pending {
+  transform: translateY(16px) scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -414,13 +424,69 @@ body {
   animation: draw-wave 8s linear infinite;
 }
 
-.reveal {
+.reveal,
+.reveal-fade,
+.reveal-scale,
+.rise {
+  animation: reveal 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.reveal,
+.rise {
   opacity: 0;
   transform: translateY(18px);
-  animation: reveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reveal-fade {
+  opacity: 0;
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+}
+
+.page-enter {
+  animation: page-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mobile-nav-enter {
+  animation: menu-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.lift {
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.45s ease,
+    border-color 0.45s ease;
+}
+
+.lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--ink) 8%, transparent);
 }
 
 @keyframes reveal {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
   to {
     opacity: 1;
     transform: none;
@@ -559,13 +625,30 @@ body {
   .float-y,
   .wave-draw,
   .reveal,
-  .reveal-pending {
+  .reveal-fade,
+  .reveal-scale,
+  .reveal-pending,
+  .reveal-fade-pending,
+  .reveal-scale-pending,
+  .rise,
+  .page-enter,
+  .mobile-nav-enter {
     animation: none !important;
   }
 
   .reveal,
-  .reveal-pending {
+  .reveal-fade,
+  .reveal-scale,
+  .reveal-pending,
+  .reveal-fade-pending,
+  .reveal-scale-pending,
+  .rise,
+  .page-enter {
     opacity: 1;
+    transform: none;
+  }
+
+  .lift:hover {
     transform: none;
   }
 

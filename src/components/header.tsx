@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { isNavActive } from "@/lib/routes";
 
 export type NavLink = {
+  id?: string;
   href: string;
   label: string;
 };
@@ -16,7 +20,41 @@ export type HeaderBrand = {
   href?: string;
 };
 
+function ItemLink({
+  href,
+  className,
+  children,
+  onClick,
+  current,
+}: {
+  href: string;
+  className: string;
+  children: ReactNode;
+  onClick?: () => void;
+  current?: boolean;
+}) {
+  if (href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto:")) {
+    return (
+      <a href={href} className={className} onClick={onClick}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={href}
+      className={className}
+      onClick={onClick}
+      aria-current={current ? "page" : undefined}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -34,11 +72,15 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
     };
   }, [open]);
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background,border,backdrop-filter] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background,border,backdrop-filter,box-shadow] duration-300 ${
         scrolled || open
-          ? "border-b border-line bg-canvas/80 backdrop-blur-xl"
+          ? "border-b border-line bg-canvas/80 shadow-[0_10px_40px_color-mix(in_srgb,var(--ink)_6%,transparent)] backdrop-blur-xl"
           : "border-b border-transparent bg-transparent"
       }`}
     >
@@ -50,22 +92,28 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
           logoUrl={brand?.logoUrl}
           name={brand?.name}
           nameFa={brand?.nameFa}
-          href={brand?.href}
+          href={brand?.href ?? "/"}
         />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="ناوبری اصلی">
-          {nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="rounded-full px-3.5 py-2 text-sm text-nav transition-colors hover:text-ink"
-            >
-              {item.label}
-            </a>
-          ))}
+          {nav.map((item) => {
+            const current = isNavActive(pathname, item.href);
+            return (
+              <ItemLink
+                key={item.id ?? item.href}
+                href={item.href}
+                current={current}
+                className={`rounded-full px-3.5 py-2 text-sm transition-colors duration-300 ${
+                  current ? "bg-brand/10 text-ink" : "text-nav hover:bg-ink/5 hover:text-ink"
+                }`}
+              >
+                {item.label}
+              </ItemLink>
+            );
+          })}
           <ThemeToggle className="ms-2" />
-          <a href="#contact" className="btn-primary ms-1 !px-4 !py-2 text-sm">
+          <Link href="/contact" className="btn-primary ms-1 !px-4 !py-2 text-sm">
             گفت‌وگو با ما
-          </a>
+          </Link>
         </nav>
         <div className="flex items-center gap-2 lg:hidden">
           <ThemeToggle />
@@ -92,29 +140,31 @@ export function Header({ nav, brand }: { nav: NavLink[]; brand?: HeaderBrand }) 
       {open ? (
         <nav
           id="mobile-nav"
-          className="border-t border-line bg-canvas/95 px-5 py-6 lg:hidden"
+          className="mobile-nav-enter border-t border-line bg-canvas/95 px-5 py-6 lg:hidden"
           aria-label="منوی موبایل"
         >
           <ul className="flex flex-col gap-1">
-            {nav.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="block rounded-xl px-3 py-3 text-lg text-nav hover:text-ink"
-                  onClick={() => setOpen(false)}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
+            {nav.map((item) => {
+              const current = isNavActive(pathname, item.href);
+              return (
+                <li key={item.id ?? item.href}>
+                  <ItemLink
+                    href={item.href}
+                    current={current}
+                    className={`block rounded-xl px-3 py-3 text-lg transition-colors ${
+                      current ? "bg-brand/10 text-ink" : "text-nav hover:text-ink"
+                    }`}
+                    onClick={() => setOpen(false)}
+                  >
+                    {item.label}
+                  </ItemLink>
+                </li>
+              );
+            })}
           </ul>
-          <a
-            href="#contact"
-            className="btn-primary mt-4 w-full"
-            onClick={() => setOpen(false)}
-          >
+          <Link href="/contact" className="btn-primary mt-4 w-full" onClick={() => setOpen(false)}>
             گفت‌وگو با ما
-          </a>
+          </Link>
         </nav>
       ) : null}
     </header>

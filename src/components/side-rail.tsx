@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { NavLink } from "@/components/header";
 
-export function SideRail({ nav }: { nav: NavLink[] }) {
-  const items = useMemo(
-    () => [{ href: "#top", label: "آغاز" }, ...nav.filter((item) => item.href.startsWith("#"))],
-    [nav],
-  );
-  const [active, setActive] = useState("#top");
+export function SideRail({ items }: { items: NavLink[] }) {
+  const [active, setActive] = useState(items[0]?.href ?? "");
 
   useEffect(() => {
-    const ids = items.map((item) => item.href.slice(1));
+    const ids = items
+      .map((item) => (item.href.startsWith("#") ? item.href.slice(1) : ""))
+      .filter(Boolean);
     const nodes = ids
       .map((id) => document.getElementById(id))
       .filter((node): node is HTMLElement => Boolean(node));
+
+    if (nodes.length === 0) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -29,6 +29,8 @@ export function SideRail({ nav }: { nav: NavLink[] }) {
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
   }, [items]);
+
+  if (items.length === 0) return null;
 
   return (
     <nav
@@ -46,13 +48,13 @@ export function SideRail({ nav }: { nav: NavLink[] }) {
                 className="group relative grid size-4 place-items-center"
               >
                 <span
-                  className={`block rounded-full transition-all ${
+                  className={`block rounded-full transition-all duration-300 ${
                     isActive
                       ? "size-2.5 bg-brand shadow-[0_0_0_4px_color-mix(in_srgb,var(--brand)_25%,transparent)]"
                       : "size-1.5 bg-muted/70 group-hover:bg-ink"
                   }`}
                 />
-                <span className="pointer-events-none absolute end-full me-3 hidden rounded-full border border-line bg-canvas-soft px-2 py-1 text-[0.7rem] text-muted whitespace-nowrap group-hover:block">
+                <span className="pointer-events-none absolute end-full me-3 hidden rounded-full border border-line bg-canvas-soft px-2 py-1 text-[0.7rem] whitespace-nowrap text-muted group-hover:block">
                   {item.label}
                 </span>
               </a>

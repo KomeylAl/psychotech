@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { BlogPostCard } from "@/lib/blog";
-import { formatPostDate } from "@/lib/blog";
+import { formatPostDate, formatViewCount } from "@/lib/blog";
 
 export function BlogPostCardView({ post, featured = false }: { post: BlogPostCard; featured?: boolean }) {
   const href = `/blog/${post.slug}`;
@@ -43,6 +43,7 @@ export function BlogPostCardView({ post, featured = false }: { post: BlogPostCar
             </Link>
           ) : null}
           {date ? <time dateTime={post.publishedAt?.toISOString()}>{date}</time> : null}
+          <span>{formatViewCount(post.viewCount)} بازدید</span>
         </div>
         <h2 className={`mt-3 font-semibold tracking-tight ${featured ? "text-2xl sm:text-3xl" : "text-xl"}`}>
           <Link href={href} className="hover:text-brand">

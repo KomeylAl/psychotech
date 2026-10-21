@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { deleteBlogPostAction } from "@/app/admin/blog/actions";
 import { AdminCard, AdminForm, AdminShell } from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
-import { formatPostDate } from "@/lib/blog";
+import { formatPostDate, formatViewCount } from "@/lib/blog";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminBlogPage() {
@@ -56,6 +56,7 @@ export default async function AdminBlogPage() {
                 {post.category ? <span>{post.category.name}</span> : null}
                 <span dir="ltr">/{post.slug}</span>
                 {post.publishedAt ? <span>{formatPostDate(post.publishedAt)}</span> : null}
+                <span>{formatViewCount(post.viewCount)} بازدید</span>
               </div>
               {post.excerpt ? (
                 <p className="mt-3 line-clamp-2 text-sm text-muted">{post.excerpt}</p>

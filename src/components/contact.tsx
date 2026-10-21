@@ -2,15 +2,23 @@ import { ContactForm } from "@/components/contact-form";
 import { Reveal } from "@/components/reveal";
 import type { SiteSettings } from "@/generated/prisma/client";
 
-export function Contact({ settings }: { settings: SiteSettings }) {
+export function Contact({
+  settings,
+  asPage = false,
+}: {
+  settings: SiteSettings;
+  asPage?: boolean;
+}) {
+  const Heading = asPage ? "h1" : "h2";
+
   return (
-    <section id="contact" className="scroll-mt-24 px-5 py-24 sm:px-8">
+    <section id="contact" className={asPage ? "px-5 pt-10 pb-24 sm:px-8 sm:pt-16" : "scroll-mt-24 px-5 py-24 sm:px-8"}>
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <Reveal>
+        <Reveal immediate={asPage}>
           <p className="eyebrow">{settings.contactEyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+          <Heading className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             {settings.contactTitle}
-          </h2>
+          </Heading>
           <p className="mt-4 leading-8 text-muted">{settings.contactDescription}</p>
           <dl className="mt-10 space-y-5 text-sm">
             <div>

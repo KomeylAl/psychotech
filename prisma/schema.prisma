@@ -193,6 +193,7 @@ model BlogPost {
   content       String         @default("")
   coverImageUrl String?
   status        String         @default("draft")
+  viewCount     Int            @default(0)
   publishedAt   DateTime?
   categoryId    String?
   category      BlogCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)

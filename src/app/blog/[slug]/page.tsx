@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { BlogPostCardView } from "@/components/blog-post-card";
+import { PostViews } from "@/components/post-views";
 import { SiteShell } from "@/components/site-shell";
 import {
   formatPostDate,
@@ -62,6 +63,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
               </Link>
             ) : null}
             {date ? <time dateTime={post.publishedAt?.toISOString()}>{date}</time> : null}
+            <PostViews postId={post.id} initialCount={post.viewCount} track />
           </div>
 
           <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-5xl sm:leading-[1.2]">

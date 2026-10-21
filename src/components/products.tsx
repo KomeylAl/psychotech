@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import type { ProductWithPoints } from "@/lib/content";
 import type { SiteSettings } from "@/generated/prisma/client";
@@ -75,20 +76,55 @@ function TheraMock() {
   );
 }
 
+export function ProductVisual({
+  slug,
+  name,
+  imageUrl,
+  index = 0,
+}: {
+  slug: string;
+  name: string;
+  imageUrl?: string | null;
+  index?: number;
+}) {
+  if (imageUrl) {
+    return (
+      <div className="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={imageUrl} alt={name} className="aspect-[4/3] w-full object-cover" />
+      </div>
+    );
+  }
+
+  if (slug === "nura") return <NuraMock />;
+  if (slug === "theradesk") return <TheraMock />;
+  if (index === 0) return <NuraMock />;
+  if (index === 1) return <TheraMock />;
+
+  return (
+    <div className="grid aspect-[4/3] w-full place-items-center rounded-2xl border border-line bg-gradient-to-br from-brand/10 to-accent/10">
+      <span className="font-display text-sm tracking-[0.18em] text-brand">{name}</span>
+    </div>
+  );
+}
+
 type ProductsProps = {
   settings: SiteSettings;
   products: ProductWithPoints[];
+  asPage?: boolean;
 };
 
-export function Products({ settings, products }: ProductsProps) {
+export function Products({ settings, products, asPage = false }: ProductsProps) {
+  const Heading = asPage ? "h1" : "h2";
+
   return (
-    <section id="products" className="scroll-mt-24 px-5 py-24 sm:px-8">
+    <section id="products" className={asPage ? "px-5 pt-10 pb-24 sm:px-8 sm:pt-16" : "scroll-mt-24 px-5 py-24 sm:px-8"}>
       <div className="mx-auto max-w-6xl">
-        <Reveal>
+        <Reveal immediate={asPage}>
           <p className="eyebrow">{settings.productsEyebrow}</p>
-          <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          <Heading className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             {settings.productsTitle}
-          </h2>
+          </Heading>
           <p className="mt-4 max-w-2xl text-muted leading-8">
             {settings.productsDescription}
           </p>
@@ -96,7 +132,7 @@ export function Products({ settings, products }: ProductsProps) {
         <div className="mt-14 space-y-8">
           {products.map((product, index) => (
             <Reveal key={product.id} delay={index * 90}>
-              <article className="glass overflow-hidden rounded-[2rem] lg:grid lg:grid-cols-2">
+              <article className="lift glass overflow-hidden rounded-[2rem] lg:grid lg:grid-cols-2">
                 <div className={`p-8 sm:p-10 ${index === 1 ? "lg:order-2" : ""}`}>
                   <div className="flex flex-wrap items-center gap-3">
                     <span
@@ -108,7 +144,11 @@ export function Products({ settings, products }: ProductsProps) {
                       {product.status}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-3xl font-semibold">{product.name}</h3>
+                  <h3 className="mt-4 text-3xl font-semibold">
+                    <Link href={`/products/${product.slug}`} className="transition-colors hover:text-brand">
+                      {product.name}
+                    </Link>
+                  </h3>
                   <p className="mt-3 text-lg text-ink/90">{product.title}</p>
                   <p className="mt-4 leading-8 text-muted">{product.description}</p>
                   <ul className="mt-6 space-y-2 text-sm text-muted">
@@ -121,24 +161,23 @@ export function Products({ settings, products }: ProductsProps) {
                       </li>
                     ))}
                   </ul>
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-brand"
+                  >
+                    صفحه {product.name}
+                    <span aria-hidden>←</span>
+                  </Link>
                 </div>
                 <div
                   className={`flex items-center bg-gradient-to-b to-transparent p-8 sm:p-10 ${index === 0 ? "from-brand/10" : "from-accent/10"}`}
                 >
-                  {product.imageUrl ? (
-                    <div className="relative w-full overflow-hidden rounded-2xl border border-line bg-canvas">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="aspect-[4/3] w-full object-cover"
-                      />
-                    </div>
-                  ) : product.slug === "nura" || index === 0 ? (
-                    <NuraMock />
-                  ) : (
-                    <TheraMock />
-                  )}
+                  <ProductVisual
+                    slug={product.slug}
+                    name={product.name}
+                    imageUrl={product.imageUrl}
+                    index={index}
+                  />
                 </div>
               </article>
             </Reveal>

@@ -131,6 +131,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="fa"
       dir="rtl"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(vazirmatn.variable, outfit.variable, "h-full antialiased")}
     >

@@ -4,17 +4,20 @@ import type { SiteSettings, ValueItem } from "@/generated/prisma/client";
 type AboutProps = {
   settings: SiteSettings;
   values: ValueItem[];
+  asPage?: boolean;
 };
 
-export function About({ settings, values }: AboutProps) {
+export function About({ settings, values, asPage = false }: AboutProps) {
+  const Heading = asPage ? "h1" : "h2";
+
   return (
-    <section id="about" className="scroll-mt-24 px-5 py-24 sm:px-8">
+    <section id="about" className={asPage ? "px-5 pt-10 pb-24 sm:px-8 sm:pt-16" : "scroll-mt-24 px-5 py-24 sm:px-8"}>
       <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-        <Reveal>
+        <Reveal immediate={asPage}>
           <p className="eyebrow">{settings.aboutEyebrow}</p>
-          <h2 className="mt-3 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl">
+          <Heading className="mt-3 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             {settings.aboutTitle}
-          </h2>
+          </Heading>
         </Reveal>
         <div className="space-y-6 text-base leading-8 text-muted">
           <Reveal delay={80}>
@@ -30,7 +33,7 @@ export function About({ settings, values }: AboutProps) {
           const tones = ["text-brand", "text-accent", "text-sage", "text-accent-bright"] as const;
           return (
             <Reveal key={value.id} delay={index * 80}>
-              <article className="glass h-full rounded-3xl p-6">
+              <article className="lift glass h-full rounded-3xl p-6">
                 <span className={`font-display text-xs ${tones[index] ?? "text-accent"}`}>
                   {String(index + 1).padStart(2, "0")}
                 </span>

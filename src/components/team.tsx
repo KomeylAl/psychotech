@@ -45,23 +45,26 @@ function Avatar({
 type TeamProps = {
   settings: SiteSettings;
   team: TeamMember[];
+  asPage?: boolean;
 };
 
-export function Team({ settings, team }: TeamProps) {
+export function Team({ settings, team, asPage = false }: TeamProps) {
+  const Heading = asPage ? "h1" : "h2";
+
   return (
-    <section id="team" className="scroll-mt-24 px-5 py-24 sm:px-8">
+    <section id="team" className={asPage ? "px-5 pt-10 pb-24 sm:px-8 sm:pt-16" : "scroll-mt-24 px-5 py-24 sm:px-8"}>
       <div className="mx-auto max-w-6xl">
-        <Reveal>
+        <Reveal immediate={asPage}>
           <p className="eyebrow">{settings.teamEyebrow}</p>
-          <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          <Heading className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             {settings.teamTitle}
-          </h2>
+          </Heading>
           <p className="mt-4 max-w-2xl text-muted leading-8">{settings.teamDescription}</p>
         </Reveal>
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {team.map((member, index) => (
             <Reveal key={member.id} delay={index * 80}>
-              <article className="glass h-full rounded-3xl p-5">
+              <article className="lift glass h-full rounded-3xl p-5">
                 <Avatar initials={member.initials} imageUrl={member.imageUrl} index={index} />
                 <h3 className="text-lg font-semibold">{member.name}</h3>
                 <p className={`mt-1 text-sm ${index % 2 === 0 ? "text-brand" : "text-accent"}`}>

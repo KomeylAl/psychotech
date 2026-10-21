@@ -3,13 +3,7 @@ import { Footer } from "@/components/footer";
 import { Header, HeaderSpacer } from "@/components/header";
 import { getSiteContent } from "@/lib/content";
 
-export async function SiteShell({
-  children,
-  homeAnchors = false,
-}: {
-  children: React.ReactNode;
-  homeAnchors?: boolean;
-}) {
+export async function SiteShell({ children }: { children: React.ReactNode }) {
   const content = await getSiteContent();
 
   if (!content) {
@@ -25,14 +19,7 @@ export async function SiteShell({
     );
   }
 
-  const { settings, nav } = content;
-  const links = homeAnchors
-    ? nav
-    : nav.map((item) =>
-        item.href.startsWith("#")
-          ? { ...item, href: `/${item.href}` }
-          : item,
-      );
+  const { settings, nav: links } = content;
 
   return (
     <div className="relative flex min-h-full flex-1 flex-col">
@@ -47,7 +34,7 @@ export async function SiteShell({
         }}
       />
       <HeaderSpacer />
-      <main id="main" className="relative z-10 overflow-x-clip">
+      <main id="main" className="page-enter relative z-10 overflow-x-clip">
         {children}
       </main>
       <Footer settings={settings} nav={links} />

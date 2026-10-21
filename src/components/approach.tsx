@@ -4,17 +4,20 @@ import type { ApproachStep, SiteSettings } from "@/generated/prisma/client";
 type ApproachProps = {
   settings: SiteSettings;
   steps: ApproachStep[];
+  asPage?: boolean;
 };
 
-export function Approach({ settings, steps }: ApproachProps) {
+export function Approach({ settings, steps, asPage = false }: ApproachProps) {
+  const Heading = asPage ? "h1" : "h2";
+
   return (
-    <section id="approach" className="scroll-mt-24 px-5 py-24 sm:px-8">
+    <section id="approach" className={asPage ? "px-5 pt-10 pb-24 sm:px-8 sm:pt-16" : "scroll-mt-24 px-5 py-24 sm:px-8"}>
       <div className="mx-auto max-w-6xl">
-        <Reveal>
+        <Reveal immediate={asPage}>
           <p className="eyebrow">{settings.approachEyebrow}</p>
-          <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+          <Heading className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
             {settings.approachTitle}
-          </h2>
+          </Heading>
           <p className="mt-4 max-w-2xl text-muted leading-8">
             {settings.approachDescription}
           </p>

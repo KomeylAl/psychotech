@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type LogoProps = {
   logoUrl?: string | null;
   name?: string;
@@ -9,10 +11,10 @@ export function Logo({
   logoUrl,
   name = "PSYCHO TECH",
   nameFa = "سایکو تک",
-  href = "#top",
+  href = "/",
 }: LogoProps) {
   return (
-    <a
+    <Link
       href={href}
       className="group flex items-center gap-2.5 text-ink no-underline"
       aria-label={`${nameFa}، بازگشت به صفحه اصلی`}
@@ -47,6 +49,6 @@ export function Logo({
         </span>
         <span className="block text-[0.7rem] text-muted">{nameFa}</span>
       </span>
-    </a>
+    </Link>
   );
 }

@@ -80,11 +80,11 @@ export async function saveUpload(
 
   const ext = EXT_BY_TYPE[type] ?? "bin";
   const name = `${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`;
-  const dir = path.join(uploadsRoot(), folder);
+  const dir = path.join(/*turbopackIgnore: true*/ uploadsRoot(), folder);
   await mkdir(dir, { recursive: true });
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, name), buffer);
+  await writeFile(path.join(/*turbopackIgnore: true*/ dir, name), buffer);
 
   return `/uploads/${folder}/${name}`;
 }

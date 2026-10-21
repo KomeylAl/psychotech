@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { recordPostView } from "@/app/blog/view-action";
-import { formatViewCount } from "@/lib/blog";
+import { formatViewCount } from "@/lib/format";
 
 const inflight = new Map<string, Promise<number | null>>();
 

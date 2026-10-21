@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { BlogPostCard } from "@/lib/blog";
-import { formatPostDate, formatViewCount } from "@/lib/blog";
+import { formatPostDate } from "@/lib/blog";
+import { formatViewCount } from "@/lib/format";
 
 export function BlogPostCardView({ post, featured = false }: { post: BlogPostCard; featured?: boolean }) {
   const href = `/blog/${post.slug}`;

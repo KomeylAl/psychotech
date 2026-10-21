@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { deleteBlogPostAction } from "@/app/admin/blog/actions";
 import { AdminCard, AdminForm, AdminShell } from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
-import { formatPostDate, formatViewCount } from "@/lib/blog";
+import { formatPostDate } from "@/lib/blog";
+import { formatViewCount } from "@/lib/format";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminBlogPage() {

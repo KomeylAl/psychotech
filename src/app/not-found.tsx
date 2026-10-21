@@ -1,10 +1,15 @@
 import Link from "next/link";
-import { SiteShell } from "@/components/site-shell";
+import { Ambient } from "@/components/ambient";
+import { Logo } from "@/components/logo";
 
 export default function NotFound() {
   return (
-    <SiteShell>
-      <section className="px-5 py-28 text-center sm:px-8">
+    <div className="relative flex min-h-full flex-1 flex-col">
+      <Ambient />
+      <header className="relative z-10 mx-auto flex h-[var(--header-h)] w-full max-w-6xl items-center px-5 sm:px-8">
+        <Logo href="/" />
+      </header>
+      <main id="main" className="relative z-10 px-5 py-24 text-center sm:px-8">
         <p className="eyebrow">404</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight">این صفحه پیدا نشد</h1>
         <p className="mx-auto mt-4 max-w-md leading-8 text-muted">
@@ -21,7 +26,7 @@ export default function NotFound() {
             بلاگ
           </Link>
         </div>
-      </section>
-    </SiteShell>
+      </main>
+    </div>
   );
 }

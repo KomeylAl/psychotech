@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import { deleteBlogTagAction, upsertBlogTagAction } from "@/app/admin/blog/actions";
-import { AdminCard, AdminForm, AdminShell, Field } from "@/components/admin-ui";
+import {
+  AdminCard,
+  AdminForm,
+  AdminShell,
+  ContentLanguageSection,
+  Field,
+} from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -16,10 +22,15 @@ export default async function AdminBlogTagsPage() {
   return (
     <AdminShell username={session.username} title="بلاگ — برچسب‌ها">
       <AdminCard title="افزودن برچسب">
-        <AdminForm action={upsertBlogTagAction} className="grid gap-4 sm:grid-cols-3">
-          <Field label="نام" name="name" required />
+        <AdminForm action={upsertBlogTagAction} className="grid gap-4">
           <Field label="Slug" name="slug" dir="ltr" hint="اختیاری" />
-          <button type="submit" className="btn-primary self-end">
+          <ContentLanguageSection locale="fa">
+            <Field label="نام" name="name" required />
+          </ContentLanguageSection>
+          <ContentLanguageSection locale="en">
+            <Field label="Name" name="nameEn" />
+          </ContentLanguageSection>
+          <button type="submit" className="btn-primary w-fit">
             افزودن
           </button>
         </AdminForm>
@@ -33,8 +44,13 @@ export default async function AdminBlogTagsPage() {
           >
             <AdminForm action={upsertBlogTagAction} className="grid gap-4">
               <input type="hidden" name="id" value={tag.id} />
-              <Field label="نام" name="name" defaultValue={tag.name} required />
               <Field label="Slug" name="slug" defaultValue={tag.slug} dir="ltr" />
+              <ContentLanguageSection locale="fa">
+                <Field label="نام" name="name" defaultValue={tag.name} required />
+              </ContentLanguageSection>
+              <ContentLanguageSection locale="en">
+                <Field label="Name" name="nameEn" defaultValue={tag.nameEn} />
+              </ContentLanguageSection>
               <button type="submit" className="btn-primary w-fit">
                 ذخیره
               </button>

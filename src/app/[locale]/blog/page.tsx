@@ -1,12 +1,20 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { BlogFilters } from "@/components/blog-filters";
 import { BlogPagination } from "@/components/blog-pagination";
 import { BlogPostCardView } from "@/components/blog-post-card";
 import { SiteShell } from "@/components/site-shell";
 import { getBlogTaxonomy, getPublishedPosts } from "@/lib/blog";
+import { getSiteContent } from "@/lib/content";
+import { isLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildPageMetadata } from "@/lib/i18n/seo";
+import { localizedHref } from "@/lib/i18n/url";
 
 export const dynamic = "force-dynamic";
 
+type Params = Promise<{ locale: string }>;
 type SearchParams = Promise<{
   q?: string;
   category?: string;
@@ -14,35 +22,65 @@ type SearchParams = Promise<{
   page?: string;
 }>;
 
-export default async function BlogPage({
+export async function generateMetadata({
+  params,
   searchParams,
 }: {
+  params: Params;
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+
+  const filters = await searchParams;
+  const dict = getDictionary(locale);
+  const content = await getSiteContent(locale);
+  const settings = content?.settings;
+
+  return buildPageMetadata({
+    locale,
+    path: "/blog",
+    title: settings?.blogTitle ?? dict.blog.title,
+    description: settings?.blogDescription ?? dict.blog.description,
+    keywords: [dict.blog.title, ...dict.meta.keywords],
+    siteName: settings?.name ?? "Psycho Tech",
+    images: [settings?.ogImageUrl],
+    noIndex: Boolean(filters.q || filters.category || filters.tag || filters.page),
+  });
+}
+
+export default async function BlogPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
   searchParams: SearchParams;
 }) {
-  const params = await searchParams;
-  const q = params.q?.trim() || undefined;
-  const category = params.category || undefined;
-  const tag = params.tag || undefined;
-  const page = Math.max(1, Number(params.page) || 1);
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+
+  const query = await searchParams;
+  const q = query.q?.trim() || undefined;
+  const category = query.category || undefined;
+  const tag = query.tag || undefined;
+  const page = Math.max(1, Number(query.page) || 1);
 
   const [{ posts, total, totalPages, page: currentPage }, taxonomy] = await Promise.all([
-    getPublishedPosts({ q, category, tag, page }),
-    getBlogTaxonomy(),
+    getPublishedPosts({ q, category, tag, page }, locale),
+    getBlogTaxonomy(locale),
   ]);
+  const dict = getDictionary(locale);
 
   return (
-    <SiteShell>
+    <SiteShell locale={locale}>
       <section className="relative overflow-hidden px-5 pt-10 pb-8 sm:px-8 sm:pt-14">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-brand/8 via-transparent to-transparent" />
         <div className="mx-auto max-w-6xl">
-          <p className="eyebrow">Blog</p>
+          <p className="eyebrow">{dict.blog.eyebrow}</p>
           <h1 className="mt-3 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-            نوشته‌ها و بینش‌های سایکو تک
+            {dict.blog.title}
           </h1>
-          <p className="mt-4 max-w-2xl text-muted leading-8">
-            مقاله‌ها، یادداشت‌ها و روایت‌هایی از تقاطع روان‌شناسی و فناوری — برای مطالعه آرام و
-            کاربردی.
-          </p>
+          <p className="mt-4 max-w-2xl text-muted leading-8">{dict.blog.description}</p>
         </div>
       </section>
 
@@ -54,6 +92,7 @@ export default async function BlogPage({
               category={category}
               tag={tag}
               total={total}
+              locale={locale}
               categories={taxonomy.categories.map((item) => ({
                 slug: item.slug,
                 name: item.name,
@@ -70,10 +109,10 @@ export default async function BlogPage({
           <div>
             {posts.length === 0 ? (
               <div className="glass rounded-[1.75rem] px-6 py-16 text-center">
-                <h2 className="text-xl font-semibold">مطلبی پیدا نشد</h2>
-                <p className="mt-3 text-muted">فیلترها را تغییر دهید یا بعداً سر بزنید.</p>
-                <Link href="/blog" className="btn-primary mt-6 inline-flex">
-                  بازگشت به همه مطالب
+                <h2 className="text-xl font-semibold">{dict.blog.notFoundTitle}</h2>
+                <p className="mt-3 text-muted">{dict.blog.notFoundText}</p>
+                <Link href={localizedHref(locale, "/blog")} className="btn-primary mt-6 inline-flex">
+                  {dict.blog.backToAll}
                 </Link>
               </div>
             ) : (
@@ -83,6 +122,7 @@ export default async function BlogPage({
                     <BlogPostCardView
                       key={post.id}
                       post={post}
+                      locale={locale}
                       featured={index === 0 && currentPage === 1 && !q && !category && !tag}
                     />
                   ))}
@@ -93,6 +133,7 @@ export default async function BlogPage({
                   q={q}
                   category={category}
                   tag={tag}
+                  locale={locale}
                 />
               </>
             )}

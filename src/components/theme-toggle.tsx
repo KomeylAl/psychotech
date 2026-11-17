@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 
 type Theme = "light" | "dark";
 
@@ -11,7 +13,14 @@ function applyTheme(theme: Theme) {
   root.style.colorScheme = theme;
 }
 
-export function ThemeToggle({ className = "" }: { className?: string }) {
+export function ThemeToggle({
+  className = "",
+  locale = "fa",
+}: {
+  className?: string;
+  locale?: Locale;
+}) {
+  const dict = getDictionary(locale);
   const [theme, setTheme] = useState<Theme>("light");
   const [ready, setReady] = useState(false);
 
@@ -38,8 +47,8 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
       type="button"
       onClick={toggle}
       className={`grid size-11 place-items-center rounded-full border border-line text-ink transition-colors hover:border-brand/50 hover:bg-brand/10 ${className}`}
-      aria-label={theme === "dark" ? "رفتن به تم روشن" : "رفتن به تم تیره"}
-      title={theme === "dark" ? "تم روشن" : "تم تیره"}
+      aria-label={theme === "dark" ? dict.theme.toLight : dict.theme.toDark}
+      title={theme === "dark" ? dict.theme.light : dict.theme.dark}
     >
       {ready && theme === "dark" ? (
         <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden>

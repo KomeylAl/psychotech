@@ -111,6 +111,31 @@ export function AdminCard({
   );
 }
 
+export function ContentLanguageSection({
+  locale,
+  title,
+  children,
+}: {
+  locale: "fa" | "en";
+  title?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      dir={locale === "en" ? "ltr" : "rtl"}
+      className="rounded-2xl border border-line bg-canvas-soft/30 p-4 sm:p-5"
+    >
+      <div className="mb-4 flex items-center gap-2">
+        <span className="rounded-full bg-brand/15 px-2.5 py-0.5 text-[0.7rem] font-medium text-brand">
+          {locale === "fa" ? "فارسی" : "English"}
+        </span>
+        {title ? <span className="text-sm text-muted">{title}</span> : null}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function Field({
   label,
   name,

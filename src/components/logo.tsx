@@ -1,10 +1,14 @@
 import Link from "next/link";
 
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
+
 type LogoProps = {
   logoUrl?: string | null;
   name?: string;
   nameFa?: string;
   href?: string;
+  locale?: Locale;
 };
 
 export function Logo({
@@ -12,12 +16,16 @@ export function Logo({
   name = "PSYCHO TECH",
   nameFa = "سایکو تک",
   href = "/",
+  locale = "fa",
 }: LogoProps) {
+  const dict = getDictionary(locale);
+  const label = locale === "fa" ? dict.logoHome(nameFa) : dict.logoHome(name);
+
   return (
     <Link
       href={href}
       className="group flex items-center gap-2.5 text-ink no-underline"
-      aria-label={`${nameFa}، بازگشت به صفحه اصلی`}
+      aria-label={label}
     >
       <span className="relative grid size-9 place-items-center overflow-hidden rounded-xl border border-line bg-canvas-soft">
         {logoUrl ? (
@@ -47,7 +55,9 @@ export function Logo({
         <span className="font-display block text-[0.95rem] font-semibold tracking-[0.08em]">
           {name}
         </span>
-        <span className="block text-[0.7rem] text-muted">{nameFa}</span>
+        <span className="block text-[0.7rem] text-muted" lang="fa">
+          {nameFa}
+        </span>
       </span>
     </Link>
   );

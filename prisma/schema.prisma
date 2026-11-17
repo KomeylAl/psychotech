@@ -92,6 +92,44 @@ model SiteSettings {
   heroVisualMode String  @default("motion")
   heroVisualUrl  String?
 
+  // English content (empty falls back to the Persian value)
+  taglineEn                  String @default("")
+  locationEn                 String @default("")
+  heroTitleLine1En           String @default("")
+  heroTitleHighlightEn       String @default("")
+  heroDescriptionEn          String @default("")
+  heroStat1LabelEn           String @default("")
+  heroStat1ValueEn           String @default("")
+  heroStat2LabelEn           String @default("")
+  heroStat2ValueEn           String @default("")
+  heroStat3LabelEn           String @default("")
+  heroStat3ValueEn           String @default("")
+  heroCtaPrimaryEn           String @default("")
+  heroCtaSecondaryEn         String @default("")
+  aboutEyebrowEn             String @default("")
+  aboutTitleEn               String @default("")
+  aboutParagraph1En          String @default("")
+  aboutParagraph2En          String @default("")
+  approachEyebrowEn          String @default("")
+  approachTitleEn            String @default("")
+  approachDescriptionEn      String @default("")
+  productsEyebrowEn          String @default("")
+  productsTitleEn            String @default("")
+  productsDescriptionEn      String @default("")
+  teamEyebrowEn              String @default("")
+  teamTitleEn                String @default("")
+  teamDescriptionEn          String @default("")
+  blogEyebrowEn              String @default("")
+  blogTitleEn                String @default("")
+  blogDescriptionEn          String @default("")
+  blogCtaEn                  String @default("")
+  contactEyebrowEn           String @default("")
+  contactTitleEn             String @default("")
+  contactDescriptionEn       String @default("")
+  contactSuccessTitleEn      String @default("")
+  contactSuccessTextEn       String @default("")
+  footerBlurbEn              String @default("")
+
   updatedAt DateTime @updatedAt
 }
 
@@ -99,6 +137,7 @@ model NavItem {
   id        String @id @default(cuid())
   href      String
   label     String
+  labelEn   String @default("")
   sortOrder Int    @default(0)
 }
 
@@ -111,6 +150,10 @@ model Product {
   status      String
   title       String
   description String
+  indexLabelEn String @default("")
+  statusEn     String @default("")
+  titleEn      String @default("")
+  descriptionEn String @default("")
   imageUrl    String?
   sortOrder   Int            @default(0)
   points      ProductPoint[]
@@ -119,6 +162,7 @@ model Product {
 model ProductPoint {
   id        String  @id @default(cuid())
   text      String
+  textEn    String  @default("")
   sortOrder Int     @default(0)
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -130,6 +174,10 @@ model TeamMember {
   role      String
   bio       String
   initials  String
+  nameEn    String  @default("")
+  roleEn    String  @default("")
+  bioEn     String  @default("")
+  initialsEn String @default("")
   imageUrl  String?
   sortOrder Int     @default(0)
 }
@@ -138,6 +186,8 @@ model ValueItem {
   id        String @id @default(cuid())
   title     String
   text      String
+  titleEn   String @default("")
+  textEn    String @default("")
   sortOrder Int    @default(0)
 }
 
@@ -146,12 +196,16 @@ model ApproachStep {
   indexLabel String
   title      String
   text       String
+  indexLabelEn String @default("")
+  titleEn    String @default("")
+  textEn     String @default("")
   sortOrder  Int    @default(0)
 }
 
 model Keyword {
   id        String @id @default(cuid())
   word      String
+  wordEn    String @default("")
   sortOrder Int    @default(0)
 }
 
@@ -168,8 +222,10 @@ model ContactMessage {
 model BlogCategory {
   id          String     @id @default(cuid())
   name        String
+  nameEn      String     @default("")
   slug        String     @unique
   description String     @default("")
+  descriptionEn String   @default("")
   sortOrder   Int        @default(0)
   posts       BlogPost[]
   createdAt   DateTime   @default(now())
@@ -179,6 +235,7 @@ model BlogCategory {
 model BlogTag {
   id        String        @id @default(cuid())
   name      String
+  nameEn    String        @default("")
   slug      String        @unique
   posts     BlogPostTag[]
   createdAt DateTime      @default(now())
@@ -188,9 +245,12 @@ model BlogTag {
 model BlogPost {
   id            String         @id @default(cuid())
   title         String
+  titleEn       String         @default("")
   slug          String         @unique
   excerpt       String         @default("")
+  excerptEn     String         @default("")
   content       String         @default("")
+  contentEn     String         @default("")
   coverImageUrl String?
   status        String         @default("draft")
   viewCount     Int            @default(0)

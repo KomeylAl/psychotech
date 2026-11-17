@@ -29,7 +29,10 @@ function int(formData: FormData, key: string, fallback = 0) {
 
 function revalidateBlog() {
   revalidatePath("/");
-  revalidatePath("/blog");
+  revalidatePath("/fa");
+  revalidatePath("/en");
+  revalidatePath("/fa/blog");
+  revalidatePath("/en/blog");
   revalidatePath("/admin", "layout");
   revalidatePath("/admin/blog");
   revalidatePath("/admin/blog/categories");
@@ -71,8 +74,10 @@ export async function upsertBlogCategoryAction(formData: FormData): Promise<Acti
     const slug = await ensureUniqueCategorySlug(requestedSlug, id || undefined);
     const data = {
       name,
+      nameEn: str(formData, "nameEn"),
       slug,
       description: str(formData, "description"),
+      descriptionEn: str(formData, "descriptionEn"),
       sortOrder: int(formData, "sortOrder"),
     };
 
@@ -110,13 +115,12 @@ export async function upsertBlogTagAction(formData: FormData): Promise<ActionRes
     const requestedSlug = str(formData, "slug") || slugify(name, "tag");
     const slug = await ensureUniqueTagSlug(requestedSlug, id || undefined);
 
+    const data = { name, nameEn: str(formData, "nameEn"), slug };
+
     if (id) {
-      await prisma.blogTag.update({
-        where: { id },
-        data: { name, slug },
-      });
+      await prisma.blogTag.update({ where: { id }, data });
     } else {
-      await prisma.blogTag.create({ data: { name, slug } });
+      await prisma.blogTag.create({ data });
     }
 
     revalidateBlog();
@@ -177,9 +181,12 @@ export async function upsertBlogPostAction(formData: FormData): Promise<ActionRe
 
     const data = {
       title,
+      titleEn: str(formData, "titleEn"),
       slug,
       excerpt: str(formData, "excerpt"),
+      excerptEn: str(formData, "excerptEn"),
       content: String(formData.get("content") ?? ""),
+      contentEn: String(formData.get("contentEn") ?? ""),
       status,
       publishedAt,
       categoryId,
@@ -209,13 +216,15 @@ export async function upsertBlogPostAction(formData: FormData): Promise<ActionRe
         },
       });
       revalidateBlog();
-      revalidatePath(`/blog/${created.slug}`);
+      revalidatePath(`/fa/blog/${created.slug}`);
+      revalidatePath(`/en/blog/${created.slug}`);
       revalidatePath(`/admin/blog/${created.id}`);
       return ok("مطلب ایجاد شد.");
     }
 
     revalidateBlog();
-    revalidatePath(`/blog/${slug}`);
+    revalidatePath(`/fa/blog/${slug}`);
+    revalidatePath(`/en/blog/${slug}`);
     if (id) revalidatePath(`/admin/blog/${id}`);
     return ok("مطلب ذخیره شد.");
   } catch (error) {

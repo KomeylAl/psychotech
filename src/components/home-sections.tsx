@@ -1,24 +1,32 @@
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { ProductVisual } from "@/components/products";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
+import { localizedHref } from "@/lib/i18n/url";
 import type { SiteContent } from "@/lib/content";
 
-export function HomePathways({ settings, values }: Pick<SiteContent, "settings" | "values">) {
+export function HomePathways({
+  settings,
+  values,
+  locale,
+}: Pick<SiteContent, "settings" | "values"> & { locale: Locale }) {
+  const dict = getDictionary(locale);
   const paths = [
     {
-      href: "/about",
+      href: localizedHref(locale, "/about"),
       eyebrow: settings.aboutEyebrow,
       title: settings.aboutTitle,
       text: settings.aboutParagraph1,
     },
     {
-      href: "/approach",
+      href: localizedHref(locale, "/approach"),
       eyebrow: settings.approachEyebrow,
       title: settings.approachTitle,
       text: settings.approachDescription,
     },
     {
-      href: "/products",
+      href: localizedHref(locale, "/products"),
       eyebrow: settings.productsEyebrow,
       title: settings.productsTitle,
       text: settings.productsDescription,
@@ -31,7 +39,7 @@ export function HomePathways({ settings, values }: Pick<SiteContent, "settings" 
         <Reveal>
           <p className="eyebrow">{settings.aboutEyebrow}</p>
           <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            سه مسیر برای شناخت سایکو تک
+            {dict.home.threePaths}
           </h2>
           <p className="mt-4 max-w-2xl leading-8 text-muted">{settings.aboutParagraph2}</p>
         </Reveal>
@@ -45,9 +53,12 @@ export function HomePathways({ settings, values }: Pick<SiteContent, "settings" 
                 </h3>
                 <p className="mt-3 line-clamp-4 flex-1 text-sm leading-7 text-muted">{path.text}</p>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-brand">
-                  ادامه
-                  <span aria-hidden className="transition-transform duration-300 group-hover:-translate-x-1">
-                    ←
+                  {dict.home.continue}
+                  <span
+                    aria-hidden
+                    className="arrow-forward transition-transform duration-300 group-hover:-translate-x-1"
+                  >
+                    →
                   </span>
                 </span>
               </Link>
@@ -71,7 +82,14 @@ export function HomePathways({ settings, values }: Pick<SiteContent, "settings" 
   );
 }
 
-export function HomeProducts({ settings, products }: Pick<SiteContent, "settings" | "products">) {
+export function HomeProducts({
+  settings,
+  products,
+  locale,
+}: Pick<SiteContent, "settings" | "products"> & { locale: Locale }) {
+  const dict = getDictionary(locale);
+  const productsHref = localizedHref(locale, "/products");
+
   return (
     <section id="products" className="scroll-mt-24 px-5 py-20 sm:px-8">
       <div className="mx-auto max-w-6xl">
@@ -84,9 +102,9 @@ export function HomeProducts({ settings, products }: Pick<SiteContent, "settings
               </h2>
               <p className="mt-4 leading-8 text-muted">{settings.productsDescription}</p>
             </div>
-            <Link href="/products" className="btn-ghost shrink-0 self-start sm:self-auto">
-              همه محصولات
-              <span aria-hidden>←</span>
+            <Link href={productsHref} className="btn-ghost shrink-0 self-start sm:self-auto">
+              {dict.home.allProducts}
+              <span aria-hidden className="arrow-forward">→</span>
             </Link>
           </div>
         </Reveal>
@@ -98,14 +116,19 @@ export function HomeProducts({ settings, products }: Pick<SiteContent, "settings
                   <div className="flex flex-col p-6 sm:p-7">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
                       <span className={index % 2 === 0 ? "text-brand" : "text-accent"}>
-                        {product.indexLabel} / {product.nameEn}
+                        {Boolean(product.nameEn) && product.nameEn !== product.name
+                          ? `${product.indexLabel} / ${product.nameEn}`
+                          : product.indexLabel}
                       </span>
                       <span className="rounded-full border border-line px-2 py-0.5 text-muted">
                         {product.status}
                       </span>
                     </div>
                     <h3 className="mt-4 text-2xl font-semibold">
-                      <Link href={`/products/${product.slug}`} className="hover:text-brand">
+                      <Link
+                        href={localizedHref(locale, `/products/${product.slug}`)}
+                        className="hover:text-brand"
+                      >
                         {product.name}
                       </Link>
                     </h3>
@@ -119,11 +142,11 @@ export function HomeProducts({ settings, products }: Pick<SiteContent, "settings
                       ))}
                     </ul>
                     <Link
-                      href={`/products/${product.slug}`}
+                      href={localizedHref(locale, `/products/${product.slug}`)}
                       className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-medium text-brand"
                     >
-                      صفحه {product.name}
-                      <span aria-hidden>←</span>
+                      {dict.home.viewProduct(product.name)}
+                      <span aria-hidden className="arrow-forward">→</span>
                     </Link>
                   </div>
                   <div className="flex items-center bg-gradient-to-b from-brand/10 to-transparent p-5">
@@ -132,6 +155,7 @@ export function HomeProducts({ settings, products }: Pick<SiteContent, "settings
                       name={product.name}
                       imageUrl={product.imageUrl}
                       index={index}
+                      locale={locale}
                     />
                   </div>
                 </article>
@@ -139,14 +163,20 @@ export function HomeProducts({ settings, products }: Pick<SiteContent, "settings
             ))}
           </div>
         ) : (
-          <p className="mt-10 text-muted">هنوز محصولی ثبت نشده است.</p>
+          <p className="mt-10 text-muted">{dict.home.noProducts}</p>
         )}
       </div>
     </section>
   );
 }
 
-export function HomeApproach({ settings, steps }: Pick<SiteContent, "settings" | "steps">) {
+export function HomeApproach({
+  settings,
+  steps,
+  locale,
+}: Pick<SiteContent, "settings" | "steps"> & { locale: Locale }) {
+  const dict = getDictionary(locale);
+
   return (
     <section id="approach" className="scroll-mt-24 px-5 py-20 sm:px-8">
       <div className="mx-auto max-w-6xl">
@@ -173,9 +203,9 @@ export function HomeApproach({ settings, steps }: Pick<SiteContent, "settings" |
           ))}
         </ol>
         <Reveal delay={120}>
-          <Link href="/approach" className="btn-ghost mt-8 inline-flex">
-            مسیر کامل رویکرد
-            <span aria-hidden>←</span>
+          <Link href={localizedHref(locale, "/approach")} className="btn-ghost mt-8 inline-flex">
+            {dict.home.approachCta}
+            <span aria-hidden className="arrow-forward">→</span>
           </Link>
         </Reveal>
       </div>
@@ -183,7 +213,13 @@ export function HomeApproach({ settings, steps }: Pick<SiteContent, "settings" |
   );
 }
 
-export function HomeTeam({ settings, team }: Pick<SiteContent, "settings" | "team">) {
+export function HomeTeam({
+  settings,
+  team,
+  locale,
+}: Pick<SiteContent, "settings" | "team"> & { locale: Locale }) {
+  const dict = getDictionary(locale);
+
   return (
     <section id="team" className="scroll-mt-24 px-5 py-20 sm:px-8">
       <div className="mx-auto max-w-6xl">
@@ -194,9 +230,9 @@ export function HomeTeam({ settings, team }: Pick<SiteContent, "settings" | "tea
               <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">{settings.teamTitle}</h2>
               <p className="mt-4 leading-8 text-muted">{settings.teamDescription}</p>
             </div>
-            <Link href="/team" className="btn-ghost shrink-0 self-start sm:self-auto">
-              آشنایی با تیم
-              <span aria-hidden>←</span>
+            <Link href={localizedHref(locale, "/team")} className="btn-ghost shrink-0 self-start sm:self-auto">
+              {dict.home.meetTeam}
+              <span aria-hidden className="arrow-forward">→</span>
             </Link>
           </div>
         </Reveal>
@@ -218,7 +254,12 @@ export function HomeTeam({ settings, team }: Pick<SiteContent, "settings" | "tea
   );
 }
 
-export function HomeContact({ settings }: Pick<SiteContent, "settings">) {
+export function HomeContact({
+  settings,
+  locale,
+}: Pick<SiteContent, "settings"> & { locale: Locale }) {
+  const dict = getDictionary(locale);
+
   return (
     <section id="contact" className="scroll-mt-24 px-5 py-20 sm:px-8">
       <Reveal variant="scale">
@@ -231,9 +272,9 @@ export function HomeContact({ settings }: Pick<SiteContent, "settings">) {
             <p className="mt-4 max-w-xl leading-8 text-muted">{settings.contactDescription}</p>
           </div>
           <div className="flex flex-col items-start gap-4">
-            <Link href="/contact" className="btn-primary">
-              شروع گفت‌وگو
-              <span aria-hidden>←</span>
+            <Link href={localizedHref(locale, "/contact")} className="btn-primary">
+              {dict.home.startConversation}
+              <span aria-hidden className="arrow-forward">→</span>
             </Link>
             <a href={`mailto:${settings.email}`} dir="ltr" className="text-sm text-brand">
               {settings.email}

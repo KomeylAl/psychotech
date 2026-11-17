@@ -2,10 +2,23 @@ import Link from "next/link";
 import type { BlogPostCard } from "@/lib/blog";
 import { formatPostDate } from "@/lib/blog";
 import { formatViewCount } from "@/lib/format";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
+import { localizedHref } from "@/lib/i18n/url";
 
-export function BlogPostCardView({ post, featured = false }: { post: BlogPostCard; featured?: boolean }) {
-  const href = `/blog/${post.slug}`;
-  const date = formatPostDate(post.publishedAt);
+export function BlogPostCardView({
+  post,
+  locale = "fa",
+  featured = false,
+}: {
+  post: BlogPostCard;
+  locale?: Locale;
+  featured?: boolean;
+}) {
+  const dict = getDictionary(locale);
+  const href = localizedHref(locale, `/blog/${post.slug}`);
+  const date = formatPostDate(post.publishedAt, locale);
+  const views = formatViewCount(post.viewCount, locale);
 
   return (
     <article
@@ -18,7 +31,7 @@ export function BlogPostCardView({ post, featured = false }: { post: BlogPostCar
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={post.coverImageUrl}
-            alt=""
+            alt={dict.blog.coverAlt(post.title)}
             className={`w-full object-cover transition duration-500 group-hover:scale-[1.03] ${
               featured ? "aspect-[16/10] lg:aspect-auto lg:h-full" : "aspect-[16/10]"
             }`}
@@ -37,14 +50,14 @@ export function BlogPostCardView({ post, featured = false }: { post: BlogPostCar
         <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
           {post.category ? (
             <Link
-              href={`/blog?category=${post.category.slug}`}
+              href={localizedHref(locale, `/blog?category=${post.category.slug}`)}
               className="rounded-full border border-line px-2.5 py-1 text-brand hover:bg-brand/10"
             >
               {post.category.name}
             </Link>
           ) : null}
           {date ? <time dateTime={post.publishedAt?.toISOString()}>{date}</time> : null}
-          <span>{formatViewCount(post.viewCount)} بازدید</span>
+          <span>{dict.viewCount(views)}</span>
         </div>
         <h2 className={`mt-3 font-semibold tracking-tight ${featured ? "text-2xl sm:text-3xl" : "text-xl"}`}>
           <Link href={href} className="hover:text-brand">
@@ -59,7 +72,7 @@ export function BlogPostCardView({ post, featured = false }: { post: BlogPostCar
             {post.tags.slice(0, 3).map(({ tag }) => (
               <Link
                 key={tag.id}
-                href={`/blog?tag=${tag.slug}`}
+                href={localizedHref(locale, `/blog?tag=${tag.slug}`)}
                 className="rounded-full bg-ink/5 px-2.5 py-1 text-[0.7rem] text-muted hover:text-ink"
               >
                 #{tag.name}
@@ -68,8 +81,8 @@ export function BlogPostCardView({ post, featured = false }: { post: BlogPostCar
           </div>
         ) : null}
         <Link href={href} className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-brand">
-          ادامه مطلب
-          <span aria-hidden>←</span>
+          {dict.blog.readMore}
+          <span aria-hidden className="arrow-forward">→</span>
         </Link>
       </div>
     </article>

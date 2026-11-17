@@ -1,9 +1,21 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Outfit, Vazirmatn } from "next/font/google";
+import { JsonLd } from "@/components/json-ld";
 import { themeInitScript } from "@/lib/theme-script";
 import { buildThemeCss, DEFAULT_ACCENT, DEFAULT_BRAND } from "@/lib/theme-colors";
 import { prisma } from "@/lib/prisma";
 import { cn } from "@/lib/utils";
+import {
+  defaultLocale,
+  isLocale,
+  localeDirection,
+  localeHtmlLang,
+  localeOgLocale,
+  type Locale,
+} from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { organizationJsonLd, SITE_URL, websiteJsonLd } from "@/lib/i18n/seo";
 import "./globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -18,32 +30,6 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const FALLBACK_METADATA: Metadata = {
-  title: {
-    default: "Psycho Tech | سایکو تک",
-    template: "%s | Psycho Tech",
-  },
-  description:
-    "سایکو تک در تقاطع روان‌شناسی و فناوری نرم‌افزار می‌سازد؛ ابزارهایی دقیق، اخلاق‌مدار و انسان‌محور برای درمان، سنجش و سازمان.",
-  keywords: [
-    "Psycho Tech",
-    "سایکو تک",
-    "روان‌شناسی",
-    "فناوری",
-    "سلامت روان",
-    "نرم‌افزار بالینی",
-  ],
-  authors: [{ name: "Psycho Tech" }],
-  openGraph: {
-    title: "Psycho Tech | سایکو تک",
-    description:
-      "جایی که ذهن و ماشین یکدیگر را می‌فهمند. نرم‌افزار در تقاطع روان‌شناسی و فناوری.",
-    locale: "fa_IR",
-    type: "website",
-    siteName: "Psycho Tech",
-  },
-};
-
 async function getSettingsSafe() {
   try {
     return await prisma.siteSettings.findUnique({
@@ -54,29 +40,48 @@ async function getSettingsSafe() {
   }
 }
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettingsSafe();
-  if (!settings) return FALLBACK_METADATA;
+async function getRequestLocale(): Promise<Locale> {
+  const requestHeaders = await headers();
+  const value = requestHeaders.get("x-locale");
+  return isLocale(value) ? value : defaultLocale;
+}
 
-  const title = `${settings.name} | ${settings.nameFa}`;
-  const description = settings.heroDescription;
+function pick(locale: Locale, fa: string, en: string): string {
+  if (locale === "en" && en?.trim()) return en;
+  return fa;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [settings, locale] = await Promise.all([getSettingsSafe(), getRequestLocale()]);
+  const dict = getDictionary(locale);
+
+  const defaultTitle = settings
+    ? locale === "fa"
+      ? `${settings.nameFa} | ${settings.name}`
+      : `${settings.name} — ${pick(locale, settings.tagline, settings.taglineEn)}`
+    : `Psycho Tech | ${dict.meta.brandTagline}`;
+
+  const description = settings
+    ? pick(locale, settings.heroDescription, settings.heroDescriptionEn)
+    : dict.meta.brandDescription;
+
+  const keywords = settings
+    ? [settings.name, settings.nameFa, ...dict.meta.keywords]
+    : dict.meta.keywords;
 
   return {
+    metadataBase: new URL(SITE_URL),
     title: {
-      default: title,
-      template: `%s | ${settings.name}`,
+      default: defaultTitle,
+      template: `%s | ${settings?.name ?? "Psycho Tech"}`,
     },
     description,
-    keywords: [
-      settings.name,
-      settings.nameFa,
-      "روان‌شناسی",
-      "فناوری",
-      "سلامت روان",
-      "نرم‌افزار بالینی",
-    ],
-    authors: [{ name: settings.name }],
-    icons: settings.faviconUrl
+    keywords,
+    authors: [{ name: settings?.name ?? "Psycho Tech" }],
+    creator: settings?.name ?? "Psycho Tech",
+    publisher: settings?.name ?? "Psycho Tech",
+    applicationName: settings?.name ?? "Psycho Tech",
+    icons: settings?.faviconUrl
       ? {
           icon: [{ url: settings.faviconUrl }],
           shortcut: [settings.faviconUrl],
@@ -84,14 +89,32 @@ export async function generateMetadata(): Promise<Metadata> {
         }
       : undefined,
     openGraph: {
-      title,
-      description: settings.tagline
-        ? `${settings.tagline}. ${description}`
-        : description,
-      locale: "fa_IR",
+      title: defaultTitle,
+      description: settings
+        ? `${pick(locale, settings.tagline, settings.taglineEn)}. ${description}`
+        : dict.meta.ogDescription,
+      locale: localeOgLocale[locale],
       type: "website",
-      siteName: settings.name,
-      images: settings.ogImageUrl ? [{ url: settings.ogImageUrl }] : undefined,
+      siteName: settings?.name ?? "Psycho Tech",
+      url: `${SITE_URL}/${locale}`,
+      images: settings?.ogImageUrl ? [{ url: settings.ogImageUrl }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: defaultTitle,
+      description,
+      images: settings?.ogImageUrl ? [settings.ogImageUrl] : undefined,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
   };
 }
@@ -105,7 +128,10 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSettingsSafe();
+  const [settings, locale] = await Promise.all([getSettingsSafe(), getRequestLocale()]);
+  const dict = getDictionary(locale);
+  const siteName = settings?.name ?? "Psycho Tech";
+
   const themeCss = buildThemeCss({
     brandColor: settings?.brandColor ?? DEFAULT_BRAND,
     accentColor: settings?.accentColor ?? DEFAULT_ACCENT,
@@ -127,10 +153,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     eyebrowColorDark: settings?.eyebrowColorDark,
   });
 
+  const description = settings
+    ? pick(locale, settings.footerBlurb, settings.footerBlurbEn) || dict.meta.organizationDescription
+    : dict.meta.organizationDescription;
+
   return (
     <html
-      lang="fa"
-      dir="rtl"
+      lang={localeHtmlLang[locale]}
+      dir={localeDirection[locale]}
+      data-locale={locale}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(vazirmatn.variable, outfit.variable, "h-full antialiased")}
@@ -138,6 +169,22 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <style id="site-theme" dangerouslySetInnerHTML={{ __html: themeCss }} />
+        <JsonLd
+          data={[
+            organizationJsonLd({
+              locale,
+              siteName,
+              description,
+              logoUrl: settings?.logoUrl,
+              email: settings?.email,
+            }),
+            websiteJsonLd({
+              locale,
+              siteName,
+              description,
+            }),
+          ]}
+        />
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip bg-canvas text-ink">
         {children}

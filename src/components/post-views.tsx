@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { recordPostView } from "@/app/blog/view-action";
+import { recordPostView } from "@/app/[locale]/blog/view-action";
 import { formatViewCount } from "@/lib/format";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 
 const inflight = new Map<string, Promise<number | null>>();
 
@@ -18,12 +20,15 @@ export function PostViews({
   postId,
   initialCount,
   track = false,
+  locale = "fa",
 }: {
   postId: string;
   initialCount: number;
   track?: boolean;
+  locale?: Locale;
 }) {
   const [count, setCount] = useState(initialCount);
+  const dict = getDictionary(locale);
 
   useEffect(() => {
     if (!track) return;
@@ -36,5 +41,5 @@ export function PostViews({
     };
   }, [postId, track]);
 
-  return <span>{formatViewCount(count)} بازدید</span>;
+  return <span>{dict.viewCount(formatViewCount(count, locale))}</span>;
 }

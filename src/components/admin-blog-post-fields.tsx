@@ -1,4 +1,9 @@
-import { AdminCard, Field, ImageField } from "@/components/admin-ui";
+import {
+  AdminCard,
+  ContentLanguageSection,
+  Field,
+  ImageField,
+} from "@/components/admin-ui";
 import { RichTextField } from "@/components/rich-text-field";
 
 export type BlogTaxonomyOption = { id: string; name: string };
@@ -6,9 +11,12 @@ export type BlogTaxonomyOption = { id: string; name: string };
 export type BlogPostFormValues = {
   id?: string;
   title: string;
+  titleEn: string;
   slug: string;
   excerpt: string;
+  excerptEn: string;
   content: string;
+  contentEn: string;
   status: string;
   publishedAt: Date | null;
   categoryId: string | null;
@@ -34,19 +42,16 @@ export function BlogPostFields({
   return (
     <>
       {post?.id ? <input type="hidden" name="id" value={post.id} /> : null}
-      <AdminCard title="اطلاعات اصلی">
+
+      <AdminCard title="تنظیمات مشترک">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="عنوان" name="title" defaultValue={post?.title ?? ""} required />
           <Field
             label="Slug"
             name="slug"
             defaultValue={post?.slug ?? ""}
             dir="ltr"
-            hint="اگر خالی باشد از عنوان ساخته می‌شود"
+            hint="برای هر دو زبان یکسان است؛ اگر خالی باشد از عنوان فارسی ساخته می‌شود"
           />
-          <div className="sm:col-span-2">
-            <Field label="خلاصه" name="excerpt" defaultValue={post?.excerpt ?? ""} rows={3} />
-          </div>
           <label className="block text-sm">
             <span className="mb-2 block text-label">وضعیت</span>
             <select name="status" defaultValue={post?.status ?? "draft"} className="input">
@@ -75,13 +80,15 @@ export function BlogPostFields({
               ))}
             </select>
           </label>
-          <ImageField
-            label="تصویر کاور"
-            name="cover"
-            currentUrl={post?.coverImageUrl}
-            removeName="removeCover"
-            hint="حداکثر ۵ مگابایت — JPG، PNG، WEBP یا GIF"
-          />
+          <div className="sm:col-span-2">
+            <ImageField
+              label="تصویر کاور (مشترک)"
+              name="cover"
+              currentUrl={post?.coverImageUrl}
+              removeName="removeCover"
+              hint="حداکثر ۵ مگابایت — JPG، PNG، WEBP یا GIF"
+            />
+          </div>
         </div>
       </AdminCard>
 
@@ -108,13 +115,34 @@ export function BlogPostFields({
         )}
       </AdminCard>
 
-      <AdminCard title="متن مطلب">
-        <RichTextField
-          name="content"
-          label="محتوا"
-          defaultValue={post?.content ?? ""}
-          hint="از نوار ابزار برای تیتر، لیست، تراز و هایلایت استفاده کنید"
-        />
+      <AdminCard title="محتوای مطلب">
+        <div className="space-y-4">
+          <ContentLanguageSection locale="fa">
+            <div className="grid gap-4">
+              <Field label="عنوان" name="title" defaultValue={post?.title ?? ""} required />
+              <Field label="خلاصه" name="excerpt" defaultValue={post?.excerpt ?? ""} rows={3} />
+              <RichTextField
+                name="content"
+                label="محتوا"
+                defaultValue={post?.content ?? ""}
+                hint="از نوار ابزار برای تیتر، لیست، تراز و هایلایت استفاده کنید"
+              />
+            </div>
+          </ContentLanguageSection>
+
+          <ContentLanguageSection locale="en">
+            <div className="grid gap-4">
+              <Field label="Title" name="titleEn" defaultValue={post?.titleEn ?? ""} />
+              <Field label="Excerpt" name="excerptEn" defaultValue={post?.excerptEn ?? ""} rows={3} />
+              <RichTextField
+                name="contentEn"
+                label="Content"
+                defaultValue={post?.contentEn ?? ""}
+                hint="Shown on the English version of the site"
+              />
+            </div>
+          </ContentLanguageSection>
+        </div>
       </AdminCard>
     </>
   );

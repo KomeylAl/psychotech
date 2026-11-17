@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Keyword, SiteSettings } from "@/generated/prisma/client";
+import { localizedHref } from "@/lib/i18n/url";
+import type { Locale } from "@/lib/i18n/config";
 
 function MindField() {
   return (
@@ -64,9 +66,10 @@ function MindField() {
 type HeroProps = {
   settings: SiteSettings;
   keywords: Keyword[];
+  locale: Locale;
 };
 
-export function Hero({ settings, keywords }: HeroProps) {
+export function Hero({ settings, keywords, locale }: HeroProps) {
   const words = keywords.map((item) => item.word);
 
   return (
@@ -85,11 +88,11 @@ export function Hero({ settings, keywords }: HeroProps) {
             {settings.heroDescription}
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/products" className="btn-primary">
+            <Link href={localizedHref(locale, "/products")} className="btn-primary">
               {settings.heroCtaPrimary}
-              <span aria-hidden>←</span>
+              <span aria-hidden className="arrow-forward">→</span>
             </Link>
-            <Link href="/contact" className="btn-ghost">
+            <Link href={localizedHref(locale, "/contact")} className="btn-ghost">
               {settings.heroCtaSecondary}
             </Link>
           </div>
@@ -113,7 +116,7 @@ export function Hero({ settings, keywords }: HeroProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={settings.heroVisualUrl}
-              alt=""
+              alt={`${settings.heroTitleLine1} ${settings.heroTitleHighlight}`}
               className="size-full object-cover"
             />
           </div>

@@ -227,6 +227,19 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+html[lang="en"] body {
+  font-family: var(--font-outfit), var(--font-vazirmatn), sans-serif;
+}
+
+.arrow-forward {
+  display: inline-block;
+}
+
+html[dir="rtl"] .arrow-forward {
+  transform: rotate(180deg);
+}
+
+
 ::selection {
   background: color-mix(in srgb, var(--brand) 38%, transparent);
   color: var(--ink);

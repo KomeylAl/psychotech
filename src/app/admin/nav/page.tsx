@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import { deleteNavItemAction, upsertNavItemAction } from "@/app/admin/actions";
-import { AdminCard, AdminForm, AdminShell, Field } from "@/components/admin-ui";
+import {
+  AdminCard,
+  AdminForm,
+  AdminShell,
+  ContentLanguageSection,
+  Field,
+} from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -13,11 +19,16 @@ export default async function AdminNavPage() {
   return (
     <AdminShell username={session.username} title="ناوبری">
       <AdminCard title="افزودن آیتم">
-        <AdminForm action={upsertNavItemAction} className="grid gap-4 sm:grid-cols-3">
-          <Field label="برچسب" name="label" required />
-          <Field label="لینک (مثل #about)" name="href" required dir="ltr" />
+        <AdminForm action={upsertNavItemAction} className="grid gap-4">
+          <Field label="لینک (مثل /about)" name="href" required dir="ltr" />
           <Field label="ترتیب" name="sortOrder" type="number" defaultValue={items.length} />
-          <button type="submit" className="btn-primary sm:col-span-3 sm:w-fit">
+          <ContentLanguageSection locale="fa">
+            <Field label="برچسب فارسی" name="label" required />
+          </ContentLanguageSection>
+          <ContentLanguageSection locale="en">
+            <Field label="English label" name="labelEn" />
+          </ContentLanguageSection>
+          <button type="submit" className="btn-primary sm:w-fit">
             افزودن
           </button>
         </AdminForm>
@@ -25,16 +36,21 @@ export default async function AdminNavPage() {
 
       {items.map((item) => (
         <AdminCard key={item.id} title={item.label}>
-          <AdminForm action={upsertNavItemAction} className="grid gap-4 sm:grid-cols-3">
+          <AdminForm action={upsertNavItemAction} className="grid gap-4">
             <input type="hidden" name="id" value={item.id} />
-            <Field label="برچسب" name="label" defaultValue={item.label} required />
-            <Field label="لینک" name="href" defaultValue={item.href} required dir="ltr" />
-            <Field label="ترتیب" name="sortOrder" type="number" defaultValue={item.sortOrder} />
-            <div className="flex gap-2 sm:col-span-3">
-              <button type="submit" className="btn-primary !py-2 text-sm">
-                ذخیره
-              </button>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="لینک" name="href" defaultValue={item.href} required dir="ltr" />
+              <Field label="ترتیب" name="sortOrder" type="number" defaultValue={item.sortOrder} />
             </div>
+            <ContentLanguageSection locale="fa">
+              <Field label="برچسب فارسی" name="label" defaultValue={item.label} required />
+            </ContentLanguageSection>
+            <ContentLanguageSection locale="en">
+              <Field label="English label" name="labelEn" defaultValue={item.labelEn} />
+            </ContentLanguageSection>
+            <button type="submit" className="btn-primary sm:w-fit">
+              ذخیره
+            </button>
           </AdminForm>
           <AdminForm action={deleteNavItemAction} className="mt-3" successMessage="آیتم حذف شد.">
             <input type="hidden" name="id" value={item.id} />

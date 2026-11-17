@@ -11,7 +11,7 @@ export function slugify(input: string, fallback = "item"): string {
 }
 
 export function uniqueSlug(base: string, existing: string[], fallback = "item"): string {
-  let slug = slugify(base, fallback);
+  const slug = slugify(base, fallback);
   if (!existing.includes(slug)) return slug;
 
   let index = 2;

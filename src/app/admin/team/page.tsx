@@ -1,6 +1,13 @@
 import { redirect } from "next/navigation";
 import { deleteTeamMemberAction, upsertTeamMemberAction } from "@/app/admin/actions";
-import { AdminCard, AdminForm, AdminShell, Field, ImageField } from "@/components/admin-ui";
+import {
+  AdminCard,
+  AdminForm,
+  AdminShell,
+  ContentLanguageSection,
+  Field,
+  ImageField,
+} from "@/components/admin-ui";
 import { getAdminSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -13,17 +20,34 @@ export default async function AdminTeamPage() {
   return (
     <AdminShell username={session.username} title="تیم">
       <AdminCard title="افزودن عضو">
-        <AdminForm action={upsertTeamMemberAction} className="grid gap-4 sm:grid-cols-2">
-          <Field label="نام" name="name" required />
-          <Field label="نقش" name="role" required />
-          <Field label="حروف اول" name="initials" required />
-          <Field label="ترتیب" name="sortOrder" type="number" defaultValue={team.length} />
-          <div className="sm:col-span-2">
-            <Field label="بیو" name="bio" rows={3} required />
+        <AdminForm action={upsertTeamMemberAction} className="grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="ترتیب" name="sortOrder" type="number" defaultValue={team.length} />
+            <ImageField label="تصویر عضو (مشترک)" name="image" />
           </div>
-          <div className="sm:col-span-2">
-            <ImageField label="تصویر عضو" name="image" />
-          </div>
+
+          <ContentLanguageSection locale="fa">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="نام" name="name" required />
+              <Field label="نقش" name="role" required />
+              <Field label="حروف اول" name="initials" required />
+              <div className="sm:col-span-2">
+                <Field label="بیو" name="bio" rows={3} required />
+              </div>
+            </div>
+          </ContentLanguageSection>
+
+          <ContentLanguageSection locale="en">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Name" name="nameEn" />
+              <Field label="Role" name="roleEn" />
+              <Field label="Initials" name="initialsEn" />
+              <div className="sm:col-span-2">
+                <Field label="Bio" name="bioEn" rows={3} />
+              </div>
+            </div>
+          </ContentLanguageSection>
+
           <button type="submit" className="btn-primary sm:w-fit">
             افزودن
           </button>
@@ -31,24 +55,41 @@ export default async function AdminTeamPage() {
       </AdminCard>
 
       {team.map((member) => (
-        <AdminCard key={member.id} title={member.name}>
-          <AdminForm action={upsertTeamMemberAction} className="grid gap-4 sm:grid-cols-2">
+        <AdminCard key={member.id} title={`${member.name}${member.nameEn ? ` / ${member.nameEn}` : ""}`}>
+          <AdminForm action={upsertTeamMemberAction} className="grid gap-4">
             <input type="hidden" name="id" value={member.id} />
-            <Field label="نام" name="name" defaultValue={member.name} required />
-            <Field label="نقش" name="role" defaultValue={member.role} required />
-            <Field label="حروف اول" name="initials" defaultValue={member.initials} required />
-            <Field label="ترتیب" name="sortOrder" type="number" defaultValue={member.sortOrder} />
-            <div className="sm:col-span-2">
-              <Field label="بیو" name="bio" defaultValue={member.bio} rows={3} required />
-            </div>
-            <div className="sm:col-span-2">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="ترتیب" name="sortOrder" type="number" defaultValue={member.sortOrder} />
               <ImageField
-                label="تصویر عضو"
+                label="تصویر عضو (مشترک)"
                 name="image"
                 currentUrl={member.imageUrl}
                 removeName="removeImage"
               />
             </div>
+
+            <ContentLanguageSection locale="fa">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="نام" name="name" defaultValue={member.name} required />
+                <Field label="نقش" name="role" defaultValue={member.role} required />
+                <Field label="حروف اول" name="initials" defaultValue={member.initials} required />
+                <div className="sm:col-span-2">
+                  <Field label="بیو" name="bio" defaultValue={member.bio} rows={3} required />
+                </div>
+              </div>
+            </ContentLanguageSection>
+
+            <ContentLanguageSection locale="en">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Name" name="nameEn" defaultValue={member.nameEn} />
+                <Field label="Role" name="roleEn" defaultValue={member.roleEn} />
+                <Field label="Initials" name="initialsEn" defaultValue={member.initialsEn} />
+                <div className="sm:col-span-2">
+                  <Field label="Bio" name="bioEn" defaultValue={member.bioEn} rows={3} />
+                </div>
+              </div>
+            </ContentLanguageSection>
+
             <button type="submit" className="btn-primary sm:w-fit">
               ذخیره
             </button>

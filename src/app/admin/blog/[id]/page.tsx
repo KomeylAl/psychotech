@@ -31,9 +31,14 @@ export default async function AdminEditBlogPostPage({ params }: { params: Params
           بازگشت به لیست
         </Link>
         {post.status === "published" ? (
-          <Link href={`/blog/${post.slug}`} className="btn-ghost !py-2 text-sm">
-            مشاهده در سایت
-          </Link>
+          <>
+            <Link href={`/fa/blog/${post.slug}`} className="btn-ghost !py-2 text-sm">
+              مشاهده (فارسی)
+            </Link>
+            <Link href={`/en/blog/${post.slug}`} className="btn-ghost !py-2 text-sm">
+              View (English)
+            </Link>
+          </>
         ) : null}
       </div>
 
@@ -44,9 +49,12 @@ export default async function AdminEditBlogPostPage({ params }: { params: Params
           post={{
             id: post.id,
             title: post.title,
+            titleEn: post.titleEn,
             slug: post.slug,
             excerpt: post.excerpt,
+            excerptEn: post.excerptEn,
             content: post.content,
+            contentEn: post.contentEn,
             status: post.status,
             publishedAt: post.publishedAt,
             categoryId: post.categoryId,

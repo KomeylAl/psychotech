@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import type { NavLink } from "@/components/header";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 
-export function SideRail({ items }: { items: NavLink[] }) {
+export function SideRail({ items, locale = "fa" }: { items: NavLink[]; locale?: Locale }) {
+  const dict = getDictionary(locale);
   const [active, setActive] = useState(items[0]?.href ?? "");
 
   useEffect(() => {
@@ -35,7 +38,7 @@ export function SideRail({ items }: { items: NavLink[] }) {
   return (
     <nav
       className="pointer-events-none fixed end-5 top-1/2 z-40 hidden -translate-y-1/2 xl:block"
-      aria-label="موقعیت بخش‌ها"
+      aria-label={dict.sideRail}
     >
       <ol className="pointer-events-auto flex flex-col items-center gap-3">
         {items.map((item) => {

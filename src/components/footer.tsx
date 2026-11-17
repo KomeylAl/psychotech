@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import type { NavLink } from "@/components/header";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import type { Locale } from "@/lib/i18n/config";
 import type { SiteSettings } from "@/generated/prisma/client";
 
 type FooterProps = {
   settings: SiteSettings;
   nav: NavLink[];
+  locale: Locale;
 };
 
-export function Footer({ settings, nav }: FooterProps) {
+export function Footer({ settings, nav, locale }: FooterProps) {
+  const dict = getDictionary(locale);
+
   return (
     <footer className="mt-auto border-t border-line px-5 py-12 sm:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
@@ -17,13 +22,14 @@ export function Footer({ settings, nav }: FooterProps) {
             logoUrl={settings.logoUrl}
             name={settings.name}
             nameFa={settings.nameFa}
-            href="/"
+            href={`/${locale}`}
+            locale={locale}
           />
           <p className="mt-4 max-w-sm text-sm leading-7 text-muted">{settings.footerBlurb}</p>
         </div>
         <div className="flex flex-wrap gap-12 text-sm">
           <div>
-            <p className="mb-3 text-muted">مسیر</p>
+            <p className="mb-3 text-muted">{dict.footer.explore}</p>
             <ul className="space-y-2">
               {nav.map((item) => (
                 <li key={item.id ?? item.href}>
@@ -41,7 +47,7 @@ export function Footer({ settings, nav }: FooterProps) {
             </ul>
           </div>
           <div>
-            <p className="mb-3 text-muted">ارتباط</p>
+            <p className="mb-3 text-muted">{dict.footer.contact}</p>
             <ul className="space-y-2">
               <li>
                 <a href={`mailto:${settings.email}`} dir="ltr" className="hover:text-brand">
@@ -57,7 +63,7 @@ export function Footer({ settings, nav }: FooterProps) {
         <p className="font-display tracking-[0.12em]">
           © {new Date().getFullYear()} {settings.name}
         </p>
-        <p>ساخته‌شده با دقت برای ذهن انسان.</p>
+        <p>{dict.footer.madeWith}</p>
       </div>
     </footer>
   );

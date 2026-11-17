@@ -39,6 +39,10 @@ function parseColor(value: string, label: string) {
 
 function revalidateSite() {
   revalidatePath("/");
+  revalidatePath("/fa");
+  revalidatePath("/en");
+  revalidatePath("/fa/blog");
+  revalidatePath("/en/blog");
   revalidatePath("/admin", "layout");
 }
 
@@ -153,8 +157,10 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         name: str(formData, "name"),
         nameFa: str(formData, "nameFa"),
         tagline: str(formData, "tagline"),
+        taglineEn: str(formData, "taglineEn"),
         email: str(formData, "email"),
         location: str(formData, "location"),
+        locationEn: str(formData, "locationEn"),
         brandColor,
         accentColor,
         textColor,
@@ -175,39 +181,73 @@ export async function updateSettingsAction(formData: FormData): Promise<ActionRe
         eyebrowColorDark,
         heroVisualMode,
         heroTitleLine1: str(formData, "heroTitleLine1"),
+        heroTitleLine1En: str(formData, "heroTitleLine1En"),
         heroTitleHighlight: str(formData, "heroTitleHighlight"),
+        heroTitleHighlightEn: str(formData, "heroTitleHighlightEn"),
         heroDescription: str(formData, "heroDescription"),
+        heroDescriptionEn: str(formData, "heroDescriptionEn"),
         heroStat1Label: str(formData, "heroStat1Label"),
+        heroStat1LabelEn: str(formData, "heroStat1LabelEn"),
         heroStat1Value: str(formData, "heroStat1Value"),
+        heroStat1ValueEn: str(formData, "heroStat1ValueEn"),
         heroStat2Label: str(formData, "heroStat2Label"),
+        heroStat2LabelEn: str(formData, "heroStat2LabelEn"),
         heroStat2Value: str(formData, "heroStat2Value"),
+        heroStat2ValueEn: str(formData, "heroStat2ValueEn"),
         heroStat3Label: str(formData, "heroStat3Label"),
+        heroStat3LabelEn: str(formData, "heroStat3LabelEn"),
         heroStat3Value: str(formData, "heroStat3Value"),
+        heroStat3ValueEn: str(formData, "heroStat3ValueEn"),
         heroCtaPrimary: str(formData, "heroCtaPrimary"),
+        heroCtaPrimaryEn: str(formData, "heroCtaPrimaryEn"),
         heroCtaSecondary: str(formData, "heroCtaSecondary"),
+        heroCtaSecondaryEn: str(formData, "heroCtaSecondaryEn"),
         aboutEyebrow: str(formData, "aboutEyebrow"),
+        aboutEyebrowEn: str(formData, "aboutEyebrowEn"),
         aboutTitle: str(formData, "aboutTitle"),
+        aboutTitleEn: str(formData, "aboutTitleEn"),
         aboutParagraph1: str(formData, "aboutParagraph1"),
+        aboutParagraph1En: str(formData, "aboutParagraph1En"),
         aboutParagraph2: str(formData, "aboutParagraph2"),
+        aboutParagraph2En: str(formData, "aboutParagraph2En"),
         approachEyebrow: str(formData, "approachEyebrow"),
+        approachEyebrowEn: str(formData, "approachEyebrowEn"),
         approachTitle: str(formData, "approachTitle"),
+        approachTitleEn: str(formData, "approachTitleEn"),
         approachDescription: str(formData, "approachDescription"),
+        approachDescriptionEn: str(formData, "approachDescriptionEn"),
         productsEyebrow: str(formData, "productsEyebrow"),
+        productsEyebrowEn: str(formData, "productsEyebrowEn"),
         productsTitle: str(formData, "productsTitle"),
+        productsTitleEn: str(formData, "productsTitleEn"),
         productsDescription: str(formData, "productsDescription"),
+        productsDescriptionEn: str(formData, "productsDescriptionEn"),
         teamEyebrow: str(formData, "teamEyebrow"),
+        teamEyebrowEn: str(formData, "teamEyebrowEn"),
         teamTitle: str(formData, "teamTitle"),
+        teamTitleEn: str(formData, "teamTitleEn"),
         teamDescription: str(formData, "teamDescription"),
+        teamDescriptionEn: str(formData, "teamDescriptionEn"),
         blogEyebrow: str(formData, "blogEyebrow"),
+        blogEyebrowEn: str(formData, "blogEyebrowEn"),
         blogTitle: str(formData, "blogTitle"),
+        blogTitleEn: str(formData, "blogTitleEn"),
         blogDescription: str(formData, "blogDescription"),
+        blogDescriptionEn: str(formData, "blogDescriptionEn"),
         blogCta: str(formData, "blogCta"),
+        blogCtaEn: str(formData, "blogCtaEn"),
         contactEyebrow: str(formData, "contactEyebrow"),
+        contactEyebrowEn: str(formData, "contactEyebrowEn"),
         contactTitle: str(formData, "contactTitle"),
+        contactTitleEn: str(formData, "contactTitleEn"),
         contactDescription: str(formData, "contactDescription"),
+        contactDescriptionEn: str(formData, "contactDescriptionEn"),
         contactSuccessTitle: str(formData, "contactSuccessTitle"),
+        contactSuccessTitleEn: str(formData, "contactSuccessTitleEn"),
         contactSuccessText: str(formData, "contactSuccessText"),
+        contactSuccessTextEn: str(formData, "contactSuccessTextEn"),
         footerBlurb: str(formData, "footerBlurb"),
+        footerBlurbEn: str(formData, "footerBlurbEn"),
         ...(logoUrl !== undefined ? { logoUrl } : {}),
         ...(faviconUrl !== undefined ? { faviconUrl } : {}),
         ...(ogImageUrl !== undefined ? { ogImageUrl } : {}),
@@ -230,6 +270,7 @@ export async function upsertNavItemAction(formData: FormData): Promise<ActionRes
     const data = {
       href: str(formData, "href"),
       label: str(formData, "label"),
+      labelEn: str(formData, "labelEn"),
       sortOrder: int(formData, "sortOrder"),
     };
 
@@ -261,11 +302,18 @@ export async function upsertProductAction(formData: FormData): Promise<ActionRes
   try {
     await requireAdminSession();
     const id = str(formData, "id");
-    const pointsRaw = str(formData, "points");
-    const points = pointsRaw
+    const pointsFa = str(formData, "points")
       .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+      .map((line) => line.trim());
+    const pointsEn = str(formData, "pointsEn")
+      .split("\n")
+      .map((line) => line.trim());
+    const pointCount = Math.max(pointsFa.length, pointsEn.length);
+    const points = Array.from({ length: pointCount }, (_, sortOrder) => ({
+      text: pointsFa[sortOrder] ?? "",
+      textEn: pointsEn[sortOrder] ?? "",
+      sortOrder,
+    })).filter((point) => point.text || point.textEn);
 
     const current = id
       ? await prisma.product.findUnique({ where: { id } })
@@ -282,11 +330,15 @@ export async function upsertProductAction(formData: FormData): Promise<ActionRes
     const data = {
       slug: str(formData, "slug"),
       indexLabel: str(formData, "indexLabel"),
+      indexLabelEn: str(formData, "indexLabelEn"),
       name: str(formData, "name"),
       nameEn: str(formData, "nameEn"),
       status: str(formData, "status"),
+      statusEn: str(formData, "statusEn"),
       title: str(formData, "title"),
+      titleEn: str(formData, "titleEn"),
       description: str(formData, "description"),
+      descriptionEn: str(formData, "descriptionEn"),
       sortOrder: int(formData, "sortOrder"),
       ...(imageUrl !== undefined ? { imageUrl } : {}),
     };
@@ -297,18 +349,14 @@ export async function upsertProductAction(formData: FormData): Promise<ActionRes
         where: { id },
         data: {
           ...data,
-          points: {
-            create: points.map((text, sortOrder) => ({ text, sortOrder })),
-          },
+          points: { create: points },
         },
       });
     } else {
       await prisma.product.create({
         data: {
           ...data,
-          points: {
-            create: points.map((text, sortOrder) => ({ text, sortOrder })),
-          },
+          points: { create: points },
         },
       });
     }
@@ -354,9 +402,13 @@ export async function upsertTeamMemberAction(formData: FormData): Promise<Action
 
     const data = {
       name: str(formData, "name"),
+      nameEn: str(formData, "nameEn"),
       role: str(formData, "role"),
+      roleEn: str(formData, "roleEn"),
       bio: str(formData, "bio"),
+      bioEn: str(formData, "bioEn"),
       initials: str(formData, "initials"),
+      initialsEn: str(formData, "initialsEn"),
       sortOrder: int(formData, "sortOrder"),
       ...(imageUrl !== undefined ? { imageUrl } : {}),
     };
@@ -396,7 +448,9 @@ export async function upsertValueAction(formData: FormData): Promise<ActionResul
     const id = str(formData, "id");
     const data = {
       title: str(formData, "title"),
+      titleEn: str(formData, "titleEn"),
       text: str(formData, "text"),
+      textEn: str(formData, "textEn"),
       sortOrder: int(formData, "sortOrder"),
     };
 
@@ -430,8 +484,11 @@ export async function upsertStepAction(formData: FormData): Promise<ActionResult
     const id = str(formData, "id");
     const data = {
       indexLabel: str(formData, "indexLabel"),
+      indexLabelEn: str(formData, "indexLabelEn"),
       title: str(formData, "title"),
+      titleEn: str(formData, "titleEn"),
       text: str(formData, "text"),
+      textEn: str(formData, "textEn"),
       sortOrder: int(formData, "sortOrder"),
     };
 
@@ -465,6 +522,7 @@ export async function upsertKeywordAction(formData: FormData): Promise<ActionRes
     const id = str(formData, "id");
     const data = {
       word: str(formData, "word"),
+      wordEn: str(formData, "wordEn"),
       sortOrder: int(formData, "sortOrder"),
     };
 
